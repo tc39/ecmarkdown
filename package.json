@@ -1,0 +1,35 @@
+{
+  "name": "ecmarkdown",
+  "version": "1.0.0-pre",
+  "description": "A compiler for \"Ecmarkdown\" algorithm shorthand into HTML.",
+  "main": "lib/ecmarkdown.js",
+  "scripts": {
+    "test": "mocha --compilers js:mocha-traceur test/*.js"
+  },
+  "repository": "https://github.com/domenic/ecmarkdown.git",
+  "keywords": [
+    "ecmascript",
+    "javascript",
+    "specs",
+    "typography",
+    "markup",
+    "markdown",
+    "html",
+    "code"
+  ],
+  "files": [
+    "lib/",
+    "LICENSE.txt"
+  ],
+  "devDependencies": {
+    "glob": "^4.0.5",
+    "mocha": "^1.21.4",
+    "mocha-traceur": "git://github.com/domenic/mocha-traceur#patch-1",
+    "traceur": "^0.0.60"
+  },
+  "dependencies": {
+    "pegjs": "^0.8.0"
+  },
+  "author": "Domenic Denicola <domenic@domenicdenicola.com> (http://domenic.me/)",
+  "license": "WTFPL"
+}
