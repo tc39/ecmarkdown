@@ -1,4 +1,4 @@
-# Ecmarkup
+# Ecmarkdown
 
 `_x_` => `<var>x</var>`
 
