@@ -21,14 +21,16 @@
     "lib/",
     "LICENSE.txt"
   ],
+  "dependencies": {
+    "cheerio": "^0.17.0",
+    "js-beautify": "^1.5.1",
+    "pegjs": "^0.8.0"
+  },
   "devDependencies": {
     "glob": "^4.0.5",
     "mocha": "^1.21.4",
     "mocha-traceur": "git://github.com/domenic/mocha-traceur#patch-1",
     "traceur": "^0.0.60"
-  },
-  "dependencies": {
-    "pegjs": "^0.8.0"
   },
   "author": "Domenic Denicola <domenic@domenicdenicola.com> (http://domenic.me/)",
   "license": "WTFPL"
