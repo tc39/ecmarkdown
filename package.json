@@ -6,7 +6,8 @@
   "scripts": {
     "prepublish": "node scripts/generate-grammar.js < lib/grammar.pegjs > lib/generated-parser.js",
     "pretest": "npm run prepublish",
-    "test": "mocha"
+    "test": "mocha",
+    "lint": "jshint lib"
   },
   "repository": "https://github.com/domenic/ecmarkdown.git",
   "keywords": [
@@ -20,7 +21,7 @@
     "code"
   ],
   "files": [
-    "lib/",
+    "lib/*.js",
     "LICENSE.txt"
   ],
   "dependencies": {
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "glob": "^4.0.5",
+    "jshint": "^2.5.5",
     "mocha": "^1.21.4"
   },
   "author": "Domenic Denicola <domenic@domenicdenicola.com> (http://domenic.me/)",
