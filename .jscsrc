@@ -1,0 +1,7 @@
+{
+    "excludeFiles": ["lib/generated-parser.js"],
+    "preset": "crockford",
+    "requireMultipleVarDecl": null,
+    "requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
+    "disallowDanglingUnderscores": null
+}
