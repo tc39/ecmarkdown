@@ -48,3 +48,5 @@ Every Ecmarkdown fragment is a **numeric list**. They are written as a series of
 **Values** are written as `*x*` and are translated to `<code class="value">x</code>`. Values cannot contain spaces or asterisks.
 
 **Code** is written as `` `x` `` and is translated to `<code>x</code>`. Code cannot contain backticks.
+
+**Spec-level constants** are written as `~x~` and are translated to `<emu-const>x</emu-const>`. Spec-level constants cannot contain spaces or tildes.
