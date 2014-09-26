@@ -5,10 +5,10 @@
 ```
 0. Assert: Type(_iterator_) is Object.
 0. Assert: _completion_ is a Completion Record.
-0. Let _hasReturn_ be HasProperty(_iterator_, `"return"`).
+0. Let _hasReturn_ be HasProperty(_iterator_, "return").
 0. ReturnIfAbrupt(_hasReturn_).
   0. If _hasReturn_ is *true*, then
-    0. Let _innerResult_ be Invoke(_iterator_, `"return"`, ( )).
+    0. Let _innerResult_ be Invoke(_iterator_, "return", ( )).
     0. If _completion_.[[type]] is not ~throw~ and _innerResult_.[[type]] is ~throw~, then
       0. Return _innerResult_.
 0. Return _completion_.
@@ -48,5 +48,7 @@ Every Ecmarkdown fragment is a **numeric list**. They are written as a series of
 **Values** are written as `*x*` and are translated to `<emu-val>x</emu-val>`. Values cannot contain spaces or asterisks.
 
 **Code** is written as `` `x` `` and is translated to `<code>x</code>`. Code cannot contain backticks.
+
+**Strings** are written as `"x"` and are translated to `<code>"x"</code>`. (In other words, quoted strings are automatically interpreted as code, with no need to surround them in backticks.) Strings cannot contain double quotes.
 
 **Spec-level constants** are written as `~x~` and are translated to `<emu-const>x</emu-const>`. Spec-level constants cannot contain spaces or tildes.
