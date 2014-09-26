@@ -26,7 +26,8 @@
   ],
   "dependencies": {
     "cheerio": "^0.17.0",
-    "js-beautify": "^1.5.1",
+    "inline-elements": "^0.1.1",
+    "js-beautify": "domenic/js-beautify#custom-elements-unformatted",
     "pegjs": "^0.8.0"
   },
   "devDependencies": {
