@@ -23,7 +23,7 @@ instead of
   <li>Let <var>hasReturn</var> be HasProperty(<var>iterator</var>, <code>"return"</code>).</li>
   <li>ReturnIfAbrupt(<var>hasReturn</var>).
     <ol>
-      <li>If <var>hasReturn</var> is <code class="value">true</code>, then
+      <li>If <var>hasReturn</var> is <emu-val>true</emu-val>, then
         <ol>
           <li>Let <var>innerResult</var> be Invoke(<var>iterator</var>, <code>"return"</code>, ( )).</li>
           <li>If <var>completion</var>.[[type]] is not <emu-const>throw</emu-const> and <var>innerResult</var>.[[type]] is <emu-const>throw</emu-const>, then
@@ -45,7 +45,7 @@ Every Ecmarkdown fragment is a **numeric list**. They are written as a series of
 
 **Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain spaces, but can contain underscores.
 
-**Values** are written as `*x*` and are translated to `<code class="value">x</code>`. Values cannot contain spaces or asterisks.
+**Values** are written as `*x*` and are translated to `<emu-val>x</emu-val>`. Values cannot contain spaces or asterisks.
 
 **Code** is written as `` `x` `` and is translated to `<code>x</code>`. Code cannot contain backticks.
 
