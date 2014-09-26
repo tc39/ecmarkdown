@@ -54,3 +54,9 @@ Every Ecmarkdown fragment is a **numeric list**. They are written as a series of
 **Spec-level constants** are written as `~x~` and are translated to `<emu-const>x</emu-const>`. Spec-level constants cannot contain spaces or tildes.
 
 **Nonterminals** are written as `|x|`, `|x_opt|`, `|x[p]|`, or `|x[p]_opt|`. These are translated, respectively, into `<emu-nt>x</emu-nt>`, `<emu-nt optional>x</emu-nt>`, `<emu-nt params="p">x</emu-nt>`, or `<emu-nt params="p" optional>x</emu-nt>`. Nonterminal names can only be composed of letters. Params can be composed of anything except a closing square bracket.
+
+## Interaction with Ecmarkup
+
+Ecmarkdown is meant to be used together with [Ecmarkup](https://github.com/bterlson/ecmarkup/). Ecmarkup has an `<emu-alg>` element within which Ecmarkdown can be used; additionally, several Ecmarkdown productions produce Ecmarkup elements, as noted above.
+
+In short, we expect Ecmarkdown to be embedded within a larger Ecmarkup document, used for writing algorithm steps (and perhaps paragraphs) in a concise format.
