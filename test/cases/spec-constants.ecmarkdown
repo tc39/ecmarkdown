@@ -1,6 +1,6 @@
-0. Add ~empty~ to the list
-0. ~beginning~ constant
-0. end ~value~
-0. ~all~
-0. ~multiple~ ~constants~ with ~some~ intermediate text ~sometimes~.
-0. Spaces ~aren't allowed~ and cause it to be left as tildes.
+1. Add ~empty~ to the list
+1. ~beginning~ constant
+1. end ~value~
+1. ~all~
+1. ~multiple~ ~constants~ with ~some~ intermediate text ~sometimes~.
+1. Spaces ~aren't allowed~ and cause it to be left as tildes.

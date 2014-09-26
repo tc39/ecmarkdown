@@ -3,15 +3,15 @@
 **Ecmarkdown** is a Markdown-inspired syntax for writing algorithms in the style of the ECMAScript spec. This package will convert Ecmarkdown input to HTML output, allowing you to write
 
 ```
-0. Assert: Type(_iterator_) is Object.
-0. Assert: _completion_ is a Completion Record.
-0. Let _hasReturn_ be HasProperty(_iterator_, "return").
-0. ReturnIfAbrupt(_hasReturn_).
-  0. If _hasReturn_ is *true*, then
-    0. Let _innerResult_ be Invoke(_iterator_, "return", ( )).
-    0. If _completion_.[[type]] is not ~throw~ and _innerResult_.[[type]] is ~throw~, then
-      0. Return _innerResult_.
-0. Return _completion_.
+1. Assert: Type(_iterator_) is Object.
+1. Assert: _completion_ is a Completion Record.
+1. Let _hasReturn_ be HasProperty(_iterator_, "return").
+1. ReturnIfAbrupt(_hasReturn_).
+  1. If _hasReturn_ is *true*, then
+    1. Let _innerResult_ be Invoke(_iterator_, "return", ( )).
+    1. If _completion_.[[type]] is not ~throw~ and _innerResult_.[[type]] is ~throw~, then
+      1. Return _innerResult_.
+1. Return _completion_.
 ```
 
 instead of
@@ -41,7 +41,7 @@ instead of
 
 ## Syntax
 
-Every Ecmarkdown fragment is a **numeric list**. They are written as a series of lines, each starting with `0. `. Lines can be indented by multiples of exactly two spaces to indicate nesting.
+Every Ecmarkdown fragment is a **numeric list**. They are written as a series of lines, each starting with `1. `. Lines can be indented by multiples of exactly two spaces to indicate nesting.
 
 **Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain spaces, but can contain underscores.
 

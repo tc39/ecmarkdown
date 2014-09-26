@@ -1,7 +1,7 @@
-0. Item `1`
-0. Call `frob()`
-0. The `stream.state` should be "readable".
-0. "strings" are often in code, sometimes at the beginning.
-0. `Code can contain spaces`.
-0. Leftover backticks `code`cannot` get left there.
-0. If they're balanced though, it works: `perhaps`unanticipated`?`.
+1. Item `1`
+1. Call `frob()`
+1. The `stream.state` should be "readable".
+1. "strings" are often in code, sometimes at the beginning.
+1. `Code can contain spaces`.
+1. Leftover backticks `code`cannot` get left there.
+1. If they're balanced though, it works: `perhaps`unanticipated`?`.

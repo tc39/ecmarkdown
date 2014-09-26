@@ -1,9 +1,9 @@
-0. Assert: Type(_iterator_) is Object.
-0. Assert: _completion_ is a Completion Record.
-0. Let _hasReturn_ be HasProperty(_iterator_, "return").
-0. ReturnIfAbrupt(_hasReturn_).
-  0. If _hasReturn_ is *true*, then
-    0. Let _innerResult_ be Invoke(_iterator_, "return", ( )).
-    0. If _completion_.[[type]] is not ~throw~ and _innerResult_.[[type]] is ~throw~, then
-      0. Return _innerResult_.
-0. Return _completion_.
+1. Assert: Type(_iterator_) is Object.
+1. Assert: _completion_ is a Completion Record.
+1. Let _hasReturn_ be HasProperty(_iterator_, "return").
+1. ReturnIfAbrupt(_hasReturn_).
+  1. If _hasReturn_ is *true*, then
+    1. Let _innerResult_ be Invoke(_iterator_, "return", ( )).
+    1. If _completion_.[[type]] is not ~throw~ and _innerResult_.[[type]] is ~throw~, then
+      1. Return _innerResult_.
+1. Return _completion_.

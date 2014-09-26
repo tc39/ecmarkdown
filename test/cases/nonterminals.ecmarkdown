@@ -1,8 +1,8 @@
-0. |NonTerminalName|
-0. |NonTerminalName_opt|
-0. |NonTerminalName[Parameter1]|
-0. |NonTerminalName[Parameter1, ?Parameter2]_opt|
-0. at end |NonTerminalName[Parameter1, ?Parameter2]_opt|
-0. |NonTerminalName[Parameter1, ?Parameter2]_opt| at start
-0. in |NonTerminalName[Parameter1, ?Parameter2]_opt| middle
-0. invalid |NonTerminalName_opt[Parameter1, ?Parameter2]|
+1. |NonTerminalName|
+1. |NonTerminalName_opt|
+1. |NonTerminalName[Parameter1]|
+1. |NonTerminalName[Parameter1, ?Parameter2]_opt|
+1. at end |NonTerminalName[Parameter1, ?Parameter2]_opt|
+1. |NonTerminalName[Parameter1, ?Parameter2]_opt| at start
+1. in |NonTerminalName[Parameter1, ?Parameter2]_opt| middle
+1. invalid |NonTerminalName_opt[Parameter1, ?Parameter2]|

@@ -1,6 +1,6 @@
-0. Item *1*
-0. *beginning* value
-0. end *value*
-0. *all*
-0. *multiple* *values* with *some* intermediate text *sometimes*.
-0. Spaces *aren't allowed* and cause it to be left as asterisks.
+1. Item *1*
+1. *beginning* value
+1. end *value*
+1. *all*
+1. *multiple* *values* with *some* intermediate text *sometimes*.
+1. Spaces *aren't allowed* and cause it to be left as asterisks.
