@@ -52,3 +52,5 @@ Every Ecmarkdown fragment is a **numeric list**. They are written as a series of
 **Strings** are written as `"x"` and are translated to `<code>"x"</code>`. (In other words, quoted strings are automatically interpreted as code, with no need to surround them in backticks.) Strings cannot contain double quotes.
 
 **Spec-level constants** are written as `~x~` and are translated to `<emu-const>x</emu-const>`. Spec-level constants cannot contain spaces or tildes.
+
+**Nonterminals** are written as `|x|`, `|x_opt|`, `|x[p]|`, or `|x[p]_opt|`. These are translated, respectively, into `<emu-nt>x</emu-nt>`, `<emu-nt optional>x</emu-nt>`, `<emu-nt params="p">x</emu-nt>`, or `<emu-nt params="p" optional>x</emu-nt>`. Nonterminal names can only be composed of letters. Params can be composed of anything except a closing square bracket.
