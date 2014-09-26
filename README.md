@@ -9,7 +9,7 @@
 0. ReturnIfAbrupt(_hasReturn_).
   0. If _hasReturn_ is *true*, then
     0. Let _innerResult_ be Invoke(_iterator_, `"return"`, ( )).
-    0. If _completion_.[[type]] is not throw and _innerResult_.[[type]] is throw, then
+    0. If _completion_.[[type]] is not ~throw~ and _innerResult_.[[type]] is ~throw~, then
       0. Return _innerResult_.
 0. Return _completion_.
 ```
@@ -26,7 +26,7 @@ instead of
       <li>If <var>hasReturn</var> is <code class="value">true</code>, then
         <ol>
           <li>Let <var>innerResult</var> be Invoke(<var>iterator</var>, <code>"return"</code>, ( )).</li>
-          <li>If <var>completion</var>.[[type]] is not throw and <var>innerResult</var>.[[type]] is throw, then
+          <li>If <var>completion</var>.[[type]] is not <emu-const>throw</emu-const> and <var>innerResult</var>.[[type]] is <emu-const>throw</emu-const>, then
             <ol>
               <li>Return <var>innerResult</var>.</li>
             </ol>
