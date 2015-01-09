@@ -41,7 +41,19 @@ instead of
 
 ## Syntax
 
-Every Ecmarkdown fragment is a **numeric list**. They are written as a series of lines, each starting with `1. `. Lines can be indented by multiples of exactly two spaces to indicate nesting.
+### Top-Level Constructs
+
+Every Ecmarkdown fragment is a either a **numeric list** or a **paragraph**. These two base productions can contain other productions.
+
+**Numeric lists** are written as a series of lines, each starting with `1. `. Lines can be indented by multiples of exactly two spaces to indicate nesting. To convert a numeric list, use `ecmarkdown.list(stringOfText)` to get back HTML for the list (with root element `<ol>`).
+
+**Paragraphs** are a single line of text. To convert a paragraph, use `ecmarkdown.paragraph(stringOfText)` to get back HTML for the paragraph (with root element `<p>`).
+
+In the future we will unify these into a single parser that allows multiple paragraphs, multiple lists, and any combination thereof. But for now the above is what's fallen out of the work done so far.
+
+### Inline Constructs
+
+Within a paragraph or list item line, the following can be used:
 
 **Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain spaces, but can contain underscores.
 
@@ -59,4 +71,4 @@ Every Ecmarkdown fragment is a **numeric list**. They are written as a series of
 
 Ecmarkdown is meant to be used together with [Ecmarkup](https://github.com/bterlson/ecmarkup/). Ecmarkup has an `<emu-alg>` element within which Ecmarkdown can be used; additionally, several Ecmarkdown productions produce Ecmarkup elements, as noted above.
 
-In short, we expect Ecmarkdown to be embedded within a larger Ecmarkup document, used for writing algorithm steps (and perhaps paragraphs) in a concise format.
+In short, we expect Ecmarkdown to be embedded within a larger Ecmarkup document, used for writing algorithm steps and paragraphs in a concise format.

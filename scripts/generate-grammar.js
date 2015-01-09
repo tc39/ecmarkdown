@@ -6,7 +6,7 @@ process.stdin.on('data', function (data) {
     grammarText += data;
 });
 process.stdin.on('end', function () {
-    var parserSource = pegjs.buildParser(grammarText, { output: 'source' });
+    var parserSource = pegjs.buildParser(grammarText, { output: 'source', allowedStartRules: ['list', 'paragraph'] });
     process.stdout.write('module.exports = ');
     process.stdout.write(parserSource);
 });
