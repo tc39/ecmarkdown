@@ -45,7 +45,7 @@ instead of
 
 Every Ecmarkdown string is a either a **numeric list**, a **paragraph**, or a **fragment**. These base productions can contain other productions.
 
-**Numeric lists** are written as a series of lines, each starting with `1. `. Lines can be indented by multiples of exactly two spaces to indicate nesting. To convert a numeric list, use `ecmarkdown.list(stringOfText)` to get back HTML for the list (with root element `<ol>`).
+**Numeric lists** are written as a series of lines, each starting with `1. `. Lines can be indented by multiples of exactly two spaces to indicate nesting. To convert a numeric list, use `ecmarkdown.list(stringOfText)` to get back HTML for the list (with root element `<ol>`). HTML is allowed inside list items, where it is passed through untouched, but HTML tags cannot span multiple list items. The exception is HTML comments (`<!-- -->`), which can span multiple lines.
 
 **Paragraphs** are a single line of text. To convert a paragraph, use `ecmarkdown.paragraph(stringOfText)` to get back HTML for the paragraph (with root element `<p>`).
 
