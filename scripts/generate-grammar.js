@@ -8,7 +8,7 @@ process.stdin.on('data', function (data) {
 process.stdin.on('end', function () {
     var parserSource = pegjs.buildParser(grammarText, {
         output: 'source',
-        allowedStartRules: ['list', 'paragraph', 'fragment']
+        allowedStartRules: ['list', 'fragment']
     });
     process.stdout.write('module.exports = ');
     process.stdout.write(parserSource);

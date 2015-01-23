@@ -12,13 +12,6 @@ Bluebird.try(function () {
     });
 })
 .then(function () {
-    return baselineTester(ecmarkdown.paragraph, {
-        casesDirectory: path.resolve(__dirname, 'paragraph-cases'),
-        inputExtension: 'ecmarkdown',
-        outputExtension: 'html'
-    });
-})
-.then(function () {
     return baselineTester(ecmarkdown.fragment, {
         casesDirectory: path.resolve(__dirname, 'fragment-cases'),
         inputExtension: 'ecmarkdown',

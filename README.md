@@ -43,19 +43,17 @@ instead of
 
 ### Top-Level Constructs
 
-Every Ecmarkdown string is a either a **numeric list**, a **paragraph**, or a **fragment**. These base productions can contain other productions.
+Every Ecmarkdown string is a either a **numeric list** or a **fragment**. These base productions can contain other productions.
 
 **Numeric lists** are written as a series of lines, each starting with `1. `. Lines can be indented by multiples of exactly two spaces to indicate nesting. To convert a numeric list, use `ecmarkdown.list(stringOfText)` to get back HTML for the list (with root element `<ol>`). HTML is allowed inside list items, where it is passed through untouched, but HTML tags cannot span multiple list items. The exception is HTML comments (`<!-- -->`), which can span multiple lines.
 
-**Paragraphs** are a single line of text. To convert a paragraph, use `ecmarkdown.paragraph(stringOfText)` to get back HTML for the paragraph (with root element `<p>`).
-
-**Fragments** are also single lines of text, but unlike numeric lists and paragraphs, they are assumed to not contain any HTML. Thus, you can pass in `"<x>"` as a fragment, and you'll get back as the output HTML `"&lt;x&gt;"`.
+**Fragments** are strings of text, which unlike numeric lists, are assumed to not contain any HTML. Thus, you can pass in `` "`2 < 3`" `` as a fragment, and you'll get back as the output HTML `"<code>2 &lt; 3</code>"`. To convert a fragment, use `ecmarkdown.fragment(stringOfText)` to get back HTML for that fragment (with no root element).
 
 In the future we will unify these into a single parser that allows multiple paragraphs, multiple lists, and any combination thereof. But for now the above is what's fallen out of the work done so far.
 
 ### Inline Constructs
 
-Within a paragraph, list item line, or fragment, the following can be used:
+Within a list item line or a fragment, the following can be used:
 
 **Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain spaces, but can contain underscores.
 
@@ -71,6 +69,6 @@ Within a paragraph, list item line, or fragment, the following can be used:
 
 ## Interaction with Ecmarkup
 
-Ecmarkdown is meant to be used together with [Ecmarkup](https://github.com/bterlson/ecmarkup/). Ecmarkup has an `<emu-alg>` element within which Ecmarkdown can be used; additionally, several Ecmarkdown productions produce Ecmarkup elements, as noted above.
+Ecmarkdown is meant to be used together with [Ecmarkup](https://github.com/bterlson/ecmarkup/). Ecmarkup has an `<emu-alg>` element within which Ecmarkdown numeric lists can be used, and in other contexts it treats the content of text nodes as Ecmarkdown fragments. In the other direction, several Ecmarkdown productions produce Ecmarkup elements (as noted above).
 
-In short, we expect Ecmarkdown to be embedded within a larger Ecmarkup document, used for writing algorithm steps and paragraphs in a concise format.
+In short, we expect Ecmarkdown to be embedded within a larger Ecmarkup document, used for writing algorithm steps and other text in a concise format.
