@@ -43,17 +43,19 @@ instead of
 
 ### Top-Level Constructs
 
-Every Ecmarkdown fragment is a either a **numeric list** or a **paragraph**. These two base productions can contain other productions.
+Every Ecmarkdown string is a either a **numeric list**, a **paragraph**, or a **fragment**. These base productions can contain other productions.
 
 **Numeric lists** are written as a series of lines, each starting with `1. `. Lines can be indented by multiples of exactly two spaces to indicate nesting. To convert a numeric list, use `ecmarkdown.list(stringOfText)` to get back HTML for the list (with root element `<ol>`).
 
 **Paragraphs** are a single line of text. To convert a paragraph, use `ecmarkdown.paragraph(stringOfText)` to get back HTML for the paragraph (with root element `<p>`).
 
+**Fragments** are also single lines of text, but unlike numeric lists and paragraphs, they are assumed to not contain any HTML. Thus, you can pass in `"<x>"` as a fragment, and you'll get back as the output HTML `"&lt;x&gt;"`.
+
 In the future we will unify these into a single parser that allows multiple paragraphs, multiple lists, and any combination thereof. But for now the above is what's fallen out of the work done so far.
 
 ### Inline Constructs
 
-Within a paragraph or list item line, the following can be used:
+Within a paragraph, list item line, or fragment, the following can be used:
 
 **Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain spaces, but can contain underscores.
 

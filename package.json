@@ -26,6 +26,7 @@
   ],
   "dependencies": {
     "cheerio": "^0.17.0",
+    "escape-html": "^1.0.1",
     "inline-elements": "^0.1.1",
     "js-beautify": "^1.5.4",
     "pegjs": "^0.8.0"

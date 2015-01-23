@@ -18,4 +18,11 @@ Bluebird.try(function () {
         outputExtension: 'html'
     });
 })
+.then(function () {
+    return baselineTester(ecmarkdown.fragment, {
+        casesDirectory: path.resolve(__dirname, 'fragment-cases'),
+        inputExtension: 'ecmarkdown',
+        outputExtension: 'html'
+    });
+})
 .done();
