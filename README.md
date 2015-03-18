@@ -67,6 +67,8 @@ Within a list item line or a fragment, the following can be used:
 
 **Nonterminals** are written as `|x|`, `|x_opt|`, `|x[p]|`, or `|x[p]_opt|`. These are translated, respectively, into `<emu-nt>x</emu-nt>`, `<emu-nt optional>x</emu-nt>`, `<emu-nt params="p">x</emu-nt>`, or `<emu-nt params="p" optional>x</emu-nt>`. Nonterminal names can only be composed of letters. Params can be composed of anything except a closing square bracket.
 
+Finally, anything in between `<` and `>` will count as an **html tag** and will not be messed with, so e.g. `<span title="_x_">` will be left alone instead of being translated into `<span title=<code>"<var>x</var>"</code>>`.
+
 ## Interaction with Ecmarkup
 
 Ecmarkdown is meant to be used together with [Ecmarkup](https://github.com/bterlson/ecmarkup/). Ecmarkup has an `<emu-alg>` element within which Ecmarkdown numeric lists can be used, and in other contexts it treats the content of text nodes as Ecmarkdown fragments. In the other direction, several Ecmarkdown productions produce Ecmarkup elements (as noted above).
