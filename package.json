@@ -9,7 +9,7 @@
     "test": "node test/run-cases.js",
     "lint": "jshint lib && jscs lib && jshint test && jscs test"
   },
-  "repository": "https://github.com/domenic/ecmarkdown.git",
+  "repository": "domenic/ecmarkdown",
   "keywords": [
     "ecmascript",
     "javascript",
@@ -21,8 +21,7 @@
     "code"
   ],
   "files": [
-    "lib/*.js",
-    "LICENSE.txt"
+    "lib/*.js"
   ],
   "dependencies": {
     "cheerio": "^0.17.0",
@@ -38,6 +37,6 @@
     "jscs": "^1.6.1",
     "jshint": "^2.5.5"
   },
-  "author": "Domenic Denicola <domenic@domenicdenicola.com> (http://domenic.me/)",
+  "author": "Domenic Denicola <d@domenic.me> (https://domenic.me/)",
   "license": "WTFPL"
 }
