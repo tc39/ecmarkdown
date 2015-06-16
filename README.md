@@ -41,29 +41,41 @@ instead of
 
 ## Syntax
 
+_NOTE: this section is a bit in flux after recent changes. Please use the latest released-to-npm release for a stable syntax; we promise we will nail everything down before doing another release._
+
 ### Top-Level Constructs
 
-Every Ecmarkdown string is a either a **numeric list** or a **fragment**. These base productions can contain other productions.
+An Ecmarkdown **document**, processed using the `ecmarkdown.document(string)` export, is composed of multiple pararaphs.
 
-**Numeric lists** are written as a series of lines, each starting with `1. `. Lines can be indented by multiples of exactly two spaces to indicate nesting. To convert a numeric list, use `ecmarkdown.list(stringOfText)` to get back HTML for the list (with root element `<ol>`). HTML is allowed inside list items, where it is passed through untouched, but HTML tags cannot span multiple list items. The exception is HTML comments (`<!-- -->`), which can span multiple lines.
+A **paragraph** can be either a list or non-list paragraph.
 
-**Fragments** are strings of text, which unlike numeric lists, are assumed to not contain any HTML. Thus, you can pass in `` "`2 < 3`" `` as a fragment, and you'll get back as the output HTML `"<code>2 &lt; 3</code>"`. To convert a fragment, use `ecmarkdown.fragment(stringOfText)` to get back HTML for that fragment (with no root element).
+A **list** is composed of one or more **list items**, which are segments. Non-list paragraphs are also segments.
 
-In the future we will unify these into a single parser that allows multiple paragraphs, multiple lists, and any combination thereof. But for now the above is what's fallen out of the work done so far.
+A **segment** is a list of non-formatting characters (i.e., literal text) and formatting characters.
 
-### Inline Constructs
+An Ecmarkdown **fragment**, processed using the `ecmarkdown.fragment(string)` export, is a segment that is assumed to contain no HTML. Thus, you can pass in `` "`2 < 3`" `` as a fragment, and you'll get back as the output HTML `"<code>2 &lt; 3</code>"`.
 
-Within a list item line or a fragment, the following can be used:
+Ecmarkdown also allows HTML comments anywhere that does not otherwise disturb the parsing. They are included in the resulting output, in the equivalent location.
 
-**Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain spaces, but can contain underscores.
+### Lists
 
-**Values** are written as `*x*` and are translated to `<emu-val>x</emu-val>`. Values cannot contain spaces or asterisks.
+Lists are written as a series of lines, each starting with a number, e.g. `1.`. The first list item's number determines the starting number in the output (via `<ol start="x">`); subsequent list items' numbers are ignored.
+
+Lists can be nested using multiples of exactly two spaces.
+
+## Inline Formatting
+
+Within a segment, the following can be used:
+
+**Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain spaces, but can contain underscores. You can use variables adjacent to other characters, e.g. as in `_SIMD_Constructor`. (TODO: this latter is not working yet, and also spaces are allowed. Fix this!!)
+
+**Values** are written as `*x*` and are translated to `<emu-val>x</emu-val>`. Values cannot contain asterisks.
 
 **Code** is written as `` `x` `` and is translated to `<code>x</code>`. Code cannot contain backticks.
 
 **Strings** are written as `"x"` and are translated to `<code>"x"</code>`. (In other words, quoted strings are automatically interpreted as code, with no need to surround them in backticks.) Strings cannot contain double quotes.
 
-**Spec-level constants** are written as `~x~` and are translated to `<emu-const>x</emu-const>`. Spec-level constants cannot contain spaces or tildes.
+**Spec-level constants** are written as `~x~` and are translated to `<emu-const>x</emu-const>`. Spec-level constants cannot contain tildes.
 
 **Nonterminals** are written as `|x|`, `|x_opt|`, `|x[p]|`, or `|x[p]_opt|`. These are translated, respectively, into `<emu-nt>x</emu-nt>`, `<emu-nt optional>x</emu-nt>`, `<emu-nt params="p">x</emu-nt>`, or `<emu-nt params="p" optional>x</emu-nt>`. Nonterminal names can only be composed of letters. Params can be composed of anything except a closing square bracket.
 
@@ -71,6 +83,6 @@ Finally, anything in between `<` and `>` will count as an **html tag** and will 
 
 ## Interaction with Ecmarkup
 
-Ecmarkdown is meant to be used together with [Ecmarkup](https://github.com/bterlson/ecmarkup/). Ecmarkup has an `<emu-alg>` element within which Ecmarkdown numeric lists can be used, and in other contexts it treats the content of text nodes as Ecmarkdown fragments. In the other direction, several Ecmarkdown productions produce Ecmarkup elements (as noted above).
+Ecmarkdown is meant to be used together with [Ecmarkup](https://github.com/bterlson/ecmarkup/). Ecmarkup has an `<emu-alg>` element within which Ecmarkdown numeric lists can be used, and in other contexts it treats the content of text nodes as Ecmarkdown fragments. In the other direction, several Ecmarkdown productions produce Ecmarkup elements (as noted above). This relationship is evolving, however; the introduction of the Ecmarkdown document production will change things.
 
 In short, we expect Ecmarkdown to be embedded within a larger Ecmarkup document, used for writing algorithm steps and other text in a concise format.

@@ -4,9 +4,7 @@
   "description": "A compiler for \"Ecmarkdown\" algorithm shorthand into HTML.",
   "main": "lib/ecmarkdown.js",
   "scripts": {
-    "prepublish": "node scripts/generate-grammar.js < lib/grammar.pegjs > lib/generated-parser.js",
-    "pretest": "npm run prepublish",
-    "test": "node test/run-cases.js",
+    "test": "mocha --reporter dot test/tokenizer.js && node test/run-cases.js",
     "lint": "jshint lib && jscs lib && jshint test && jscs test"
   },
   "repository": "domenic/ecmarkdown",
@@ -24,7 +22,6 @@
     "lib/*.js"
   ],
   "dependencies": {
-    "cheerio": "^0.18.0",
     "escape-html": "^1.0.1",
     "inline-elements": "^1.0.0",
     "js-beautify": "^1.5.5"
@@ -35,6 +32,7 @@
     "glob": "^5.0.3",
     "jscs": "^1.11.3",
     "jshint": "^2.6.3",
+    "mocha": "^2.2.5",
     "pegjs": "^0.8.0"
   },
   "author": "Domenic Denicola <d@domenic.me> (https://domenic.me/)",
