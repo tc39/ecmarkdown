@@ -3,4 +3,4 @@
 1. end *value*
 1. *all*
 1. *multiple* *values* with *some* intermediate text *sometimes*.
-1. Spaces *aren't allowed* and cause it to be left as asterisks.
+1. Spaces *are allowed*.

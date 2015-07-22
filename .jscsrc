@@ -3,5 +3,6 @@
     "preset": "crockford",
     "requireMultipleVarDecl": null,
     "requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
-    "disallowDanglingUnderscores": null
+    "disallowDanglingUnderscores": null,
+    "validateIndentation": 2
 }
