@@ -61,7 +61,7 @@ Ecmarkdown also allows HTML comments anywhere that does not otherwise disturb th
 
 Lists are written as a series of lines, each starting with a number, e.g. `1.`. The first list item's number determines the starting number in the output (via `<ol start="x">`); subsequent list items' numbers are ignored.
 
-Lists can be nested using multiples of exactly two spaces.
+Lists can be nested. To do so, use any number of spaces to indent; as long as the number of spaces is consistent, list items will stay together in a nested list.
 
 ## Inline Formatting
 
