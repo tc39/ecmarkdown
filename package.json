@@ -5,7 +5,7 @@
   "main": "lib/ecmarkdown.js",
   "scripts": {
     "test": "mocha --reporter dot test/tokenizer.js && node test/run-cases.js",
-    "lint": "jshint lib && jscs lib && jshint test && jscs test"
+    "lint": "eslint lib && jscs lib && eslint test && jscs test"
   },
   "repository": "domenic/ecmarkdown",
   "keywords": [
@@ -29,9 +29,9 @@
   "devDependencies": {
     "baseline-tester": "^1.1.1",
     "bluebird": "^2.9.14",
+    "eslint": "^0.24.1",
     "glob": "^5.0.3",
     "jscs": "^1.13.1",
-    "jshint": "^2.6.3",
     "mocha": "^2.2.5",
     "pegjs": "^0.8.0"
   },

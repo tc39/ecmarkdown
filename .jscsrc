@@ -18,6 +18,7 @@
   },
   "requireFunctionDeclarations": true,
   "requireSemicolons": true,
+  "requireSpacesInsideObjectBrackets": "all",
   "validateLineBreaks": "LF",
   "validateParameterSeparator": ", ",
   "requireBlocksOnNewline": 1

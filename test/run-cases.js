@@ -1,8 +1,8 @@
 'use strict';
-var path = require('path');
-var Bluebird = require('bluebird');
-var baselineTester = Bluebird.promisify(require('baseline-tester'));
-var ecmarkdown = require('..');
+const path = require('path');
+const Bluebird = require('bluebird');
+const baselineTester = Bluebird.promisify(require('baseline-tester'));
+const ecmarkdown = require('..');
 
 Bluebird.try(function () {
   return baselineTester(ecmarkdown.document, {
