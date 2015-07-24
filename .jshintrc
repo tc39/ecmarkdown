@@ -2,6 +2,7 @@
     "bitwise": true,
     "curly": true,
     "eqeqeq": true,
+    "esnext": true,
     "freeze": true,
     "globalstrict": true,
     "immed": true,
