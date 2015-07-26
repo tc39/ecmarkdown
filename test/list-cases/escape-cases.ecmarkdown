@@ -1,0 +1,5 @@
+1. *escapes\* work on formats*
+2. \|even formats that begin on a line|
+3. ~you can escape the end as well\~
+4. \\backslash escapes to itself
+5. \other things don't escape.
