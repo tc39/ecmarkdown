@@ -1,6 +1,14 @@
 'use strict';
 const assert = require('assert');
 const Tokenizer = require('../lib/tokenizer.js');
+const formats = {
+  star: '*',
+  underscore: '_',
+  tick: '`',
+  pipe: '|',
+  string: '"',
+  tilde: '~'
+};
 
 function assertTok(tok, name, contents) {
   assert.equal(tok.name, name);
@@ -103,12 +111,9 @@ function testBasicToken(name, token) {
 }
 
 describe('Token:', function () {
-  testBasicToken('star', '*');
-  testBasicToken('underscore', '_');
-  testBasicToken('tick', '`');
-  testBasicToken('pipe', '|');
-  testBasicToken('string', '"');
-  testBasicToken('tilde', '~');
+  Object.keys(formats).forEach(function (name) {
+    testBasicToken(name, formats[name]);
+  });
   testBasicToken('linebreak', '\n');
   testBasicToken('parabreak', '\n\n');
 
@@ -219,5 +224,64 @@ describe('Token:', function () {
       assertTok(t2.next(), 'chars', 'foo');
     });
 
+  });
+});
+
+function testEscapeFormat(name, token) {
+  it('escapes start ' + name, function () {
+    const t = new Tokenizer('\\' + token + 'a' + token);
+    assertTok(t.next(), 'chars', token + 'a');
+    assertTok(t.next(), name, token);
+    assertTok(t.next(), 'EOF');
+  });
+
+  it('escapes end ' + name, function () {
+    const t = new Tokenizer(token + 'a\\' + token);
+    assertTok(t.next(), name, token);
+    assertTok(t.next(), 'chars', 'a' + token);
+    assertTok(t.next(), 'EOF');
+  });
+}
+
+describe('backslash escapes', function () {
+  it('considers one backslash chars', function () {
+    const t = new Tokenizer('\\');
+    assertTok(t.next(), 'chars', '\\');
+    assertTok(t.next(), 'EOF');
+  });
+
+  it('considers trailing backslash chars', function () {
+    const t = new Tokenizer('a\\');
+    assertTok(t.next(), 'chars', 'a\\');
+    assertTok(t.next(), 'EOF');
+  });
+
+  it('considers two backslashes a backslash', function () {
+    const t = new Tokenizer('\\\\a');
+    assertTok(t.next(), 'chars', '\\a');
+    assertTok(t.next(), 'EOF');
+  });
+
+  Object.keys(formats).forEach(function (name) {
+    testEscapeFormat(name, formats[name]);
+  });
+
+  it('escapes html tags', function () {
+    const t = new Tokenizer('\\<div>hello</div>');
+    assertTok(t.next(), 'chars', '<div>hello');
+    assertTok(t.next(), 'tag', '</div>');
+    assertTok(t.next(), 'EOF');
+  });
+
+  it('escapes html comments', function () {
+    const t = new Tokenizer('\\<!--hello-->');
+    assertTok(t.next(), 'chars', '<!--hello-->');
+    assertTok(t.next(), 'EOF');
+  });
+
+  it('does not escape non-format characters', function () {
+    const t = new Tokenizer('\\a');
+    assertTok(t.next(), 'chars', '\\a');
+    assertTok(t.next(), 'EOF');
   });
 });
