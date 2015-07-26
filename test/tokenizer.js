@@ -6,7 +6,6 @@ const formats = {
   underscore: '_',
   tick: '`',
   pipe: '|',
-  string: '"',
   tilde: '~'
 };
 
