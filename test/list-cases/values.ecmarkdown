@@ -4,3 +4,4 @@
 1. *all*
 1. *multiple* *values* with *some* intermediate text *sometimes*.
 1. Spaces *are allowed*.
+1. values *"can contain string literals"*.
