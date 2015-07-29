@@ -3,6 +3,7 @@
 1. The foo_bar should not be variabled.
 1. Neither should foo_bar baz_qux.
 1. A _variable_with_underscores_ should be OK.
+1. A _variable with spaces_ should not be OK.
 1. _variables_ can start
 1. variables can _end_
 1. Return _completion_.
