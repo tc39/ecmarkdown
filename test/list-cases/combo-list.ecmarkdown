@@ -1,0 +1,7 @@
+* bulleted list
+1. this should also just be a bullet
+  1. but this is a sub-ordered list
+  2. and this is a sub-ordered-list
+    * and this is a sub-bulleted list
+  * this is still a numbered list
+* and this is still a bulleted list

@@ -125,10 +125,10 @@ describe('Token:', function () {
     });
   });
 
-  describe('list', function () {
+  describe('numbered list', function () {
     it('considers a list at the start of the string a list', function () {
       const t = new Tokenizer('1. foo');
-      assertTok(t.next(), 'list', '1. ');
+      assertTok(t.next(), 'ol', '1. ');
       assertTok(t.next(), 'text', 'foo');
     });
 
@@ -147,7 +147,7 @@ describe('Token:', function () {
       const t = new Tokenizer('foo\n1. foo');
       assertTok(t.next(), 'text', 'foo');
       assertTok(t.next(), 'linebreak', '\n');
-      assertTok(t.next(), 'list', '1. ');
+      assertTok(t.next(), 'ol', '1. ');
       assertTok(t.next(), 'text', 'foo');
     });
 
@@ -165,7 +165,46 @@ describe('Token:', function () {
 
     it('handles preceding whitespace', function () {
       const t = new Tokenizer(' \t 1. foo');
-      assertTok(t.next(), 'list', ' \t 1. ');
+      assertTok(t.next(), 'ol', ' \t 1. ');
+      assertTok(t.next(), 'text', 'foo');
+    });
+  });
+
+  describe('bulleted list', function () {
+    it('considers a list at the start of the string a list', function () {
+      const t = new Tokenizer('* foo');
+      assertTok(t.next(), 'ul', '* ');
+      assertTok(t.next(), 'text', 'foo');
+    });
+
+    it('does not consider a list in the middle of the string a list', function () {
+      const t = new Tokenizer('foo * foo');
+      assertTok(t.next(), 'text', 'foo');
+      assertTok(t.next(), 'whitespace', ' ');
+      assertTok(t.next(), 'star', '*');
+      assertTok(t.next(), 'whitespace', ' ');
+      assertTok(t.next(), 'text', 'foo');
+    });
+
+    // note that this will not parse as a list but the lexer considers it one
+    // since it doesn't know if we're in a paragraph or a list.
+    it('considers a list after a newline a list', function () {
+      const t = new Tokenizer('foo\n* foo');
+      assertTok(t.next(), 'text', 'foo');
+      assertTok(t.next(), 'linebreak', '\n');
+      assertTok(t.next(), 'ul', '* ');
+      assertTok(t.next(), 'text', 'foo');
+    });
+
+    it('does not consider a star without a trailing space a list', function () {
+      const t = new Tokenizer('*foo');
+      assertTok(t.next(), 'star', '*');
+      assertTok(t.next(), 'text', 'foo');
+    });
+
+    it('handles preceding whitespace', function () {
+      const t = new Tokenizer(' \t * foo');
+      assertTok(t.next(), 'ul', ' \t * ');
       assertTok(t.next(), 'text', 'foo');
     });
   });
