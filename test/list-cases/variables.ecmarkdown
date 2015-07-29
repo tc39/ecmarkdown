@@ -4,6 +4,7 @@
 1. Neither should foo_bar baz_qux.
 1. A _variable_with_underscores_ should be OK.
 1. A _variable with spaces_ should not be OK.
+1. %Math_pow%(_base_, _exponent_) should look nice.
 1. _variables_ can start
 1. variables can _end_
 1. Return _completion_.
