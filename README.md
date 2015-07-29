@@ -1,14 +1,14 @@
 # Ecmarkdown
 
-**Ecmarkdown** is a Markdown-inspired syntax for writing algorithms in the style of the ECMAScript spec. This package will convert Ecmarkdown input to HTML output, allowing you to write
+**Ecmarkdown** is a Markdown-inspired syntax for writing text and algorithms in the style of the ECMAScript spec. This package will convert Ecmarkdown input to HTML output, allowing you to write
 
 ```
 1. Assert: Type(_iterator_) is Object.
 1. Assert: _completion_ is a Completion Record.
-1. Let _hasReturn_ be HasProperty(_iterator_, "return").
+1. Let _hasReturn_ be HasProperty(_iterator_, `"return"`).
 1. ReturnIfAbrupt(_hasReturn_).
   1. If _hasReturn_ is *true*, then
-    1. Let _innerResult_ be Invoke(_iterator_, "return", ( )).
+    1. Let _innerResult_ be Invoke(_iterator_, `"return"`, ( )).
     1. If _completion_.[[type]] is not ~throw~ and _innerResult_.[[type]] is ~throw~, then
       1. Return _innerResult_.
 1. Return _completion_.
@@ -41,48 +41,72 @@ instead of
 
 ## Syntax
 
-_NOTE: this section is a bit in flux after recent changes. Please use the latest released-to-npm release for a stable syntax; we promise we will nail everything down before doing another release._
-
 ### Top-Level Constructs
+The following is a partial [EBNF](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form#Basics) for the top-level constructs in Ecmarkdown.
 
-An Ecmarkdown **document**, processed using the `ecmarkdown.document(string)` export, is composed of multiple pararaphs.
+```
+Document = Paragraph , [ { "\n\n" , Paragraph  } ] ;
 
-A **paragraph** can be either a list or non-list paragraph.
+Paragraph = OrderedList | UnorderedList | NonList ;
 
-A **list** is composed of one or more **list items**, which are segments. Non-list paragraphs are also segments.
+OrderedList = OrderedListItem , [ { "\n" , OrderedListItem | UnorderedListItem } ] ;
 
-A **segment** is a list of non-formatting characters (i.e., literal text) and formatting characters.
+UnorderedList = UnorderedListItem , [ { "\n" , OrderedListItem | UnorderedListItem } ] ;
 
-An Ecmarkdown **fragment**, processed using the `ecmarkdown.fragment(string)` export, is a segment that is assumed to contain no HTML. Thus, you can pass in `` "`2 < 3`" `` as a fragment, and you'll get back as the output HTML `"<code>2 &lt; 3</code>"`.
+OrderedListItem = { white space } , { digit } , "." , space , Fragment ;
 
-Ecmarkdown also allows HTML comments anywhere that does not otherwise disturb the parsing. They are included in the resulting output, in the equivalent location.
+UnorderedListItem = { white space } , "*" , space , Fragment ;
+
+NonList = Fragment ;
+
+Fragment = { StarFormat | UnderscoreFormat | TildeFormat
+         | TickFormat | PipeFormat | Text } ;
+         // could consider renaming to output element
+
+StarFormat = "*" , Text , "*" ;
+// With some complex restrictions on surrounding context to match Github-flavored
+// Markdown semantics
+
+// and etc. for each fragment type except TickFragment which has no context
+// restrictions per gmd semantics and UnderscoreFormat which doesn't allow whitespace
+// or format characters inside of it.
+```
+
+The key takeaways from this grammar are the following:
+
+* Paragraphs are separated by two line breaks.
+* Paragraphs can either be lists or non-lists.
+* Lists can be ordered or unordered. List items must be preceded by a line break. You can have a ordered list as a sublist in an unordered list and vice versa.
+* List items and non-list paragraphs are fragments. Fragments are a series of one or more formats or plain text.
+
+Ecmarkdown also allows HTML tags and comments anywhere that does not otherwise disturb the parsing. They are included in the resulting output, in the equivalent location.
 
 ### Lists
 
-Lists are written as a series of lines, each starting with a number, e.g. `1.`. The first list item's number determines the starting number in the output (via `<ol start="x">`); subsequent list items' numbers are ignored.
+Lists are written as a series of lines, each starting with either a number, e.g. `1.`, or a star, e.g. `*`. The first list item's number determines the starting number in the output (via `<ol start="x">`); subsequent list items' numbers are ignored.
 
 Lists can be nested. To do so, use any number of spaces to indent; as long as the number of spaces is consistent, list items will stay together in a nested list.
 
 ## Inline Formatting
 
-Within a segment, the following can be used:
+Within a fragment, the following can be used:
 
-**Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain spaces, but can contain underscores. You can use variables adjacent to other characters, e.g. as in `_SIMD_Constructor`. (TODO: this latter is not working yet, and also spaces are allowed. Fix this!!)
+**Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain whitespace or other formatting characters. You can use variables adjacent to other characters, e.g. as in `_SIMD_Constructor`, as long as the start of the variable is preceded by whitespace (e.g. `my_SIMD_constructor` does not contain any variables).
 
 **Values** are written as `*x*` and are translated to `<emu-val>x</emu-val>`. Values cannot contain asterisks.
 
 **Code** is written as `` `x` `` and is translated to `<code>x</code>`. Code cannot contain backticks.
 
-**Strings** are written as `"x"` and are translated to `<code>"x"</code>`. (In other words, quoted strings are automatically interpreted as code, with no need to surround them in backticks.) Strings cannot contain double quotes.
-
 **Spec-level constants** are written as `~x~` and are translated to `<emu-const>x</emu-const>`. Spec-level constants cannot contain tildes.
 
 **Nonterminals** are written as `|x|`, `|x_opt|`, `|x[p]|`, or `|x[p]_opt|`. These are translated, respectively, into `<emu-nt>x</emu-nt>`, `<emu-nt optional>x</emu-nt>`, `<emu-nt params="p">x</emu-nt>`, or `<emu-nt params="p" optional>x</emu-nt>`. Nonterminal names can only be composed of letters. Params can be composed of anything except a closing square bracket.
+
+You can escape any format above with a backslash. Escaping of any non-format characters will not be considered an escape and will render literally (eg. `\a` simply renders as `\a`). If you need a literal backslash before a formatting character, you must escape the backslash (eg. `\\*foo*` renders as `\<emu-val>foo</emu-val>`).
 
 Finally, anything in between `<` and `>` will count as an **html tag** and will not be messed with, so e.g. `<span title="_x_">` will be left alone instead of being translated into `<span title=<code>"<var>x</var>"</code>>`.
 
 ## Interaction with Ecmarkup
 
-Ecmarkdown is meant to be used together with [Ecmarkup](https://github.com/bterlson/ecmarkup/). Ecmarkup has an `<emu-alg>` element within which Ecmarkdown numeric lists can be used, and in other contexts it treats the content of text nodes as Ecmarkdown fragments. In the other direction, several Ecmarkdown productions produce Ecmarkup elements (as noted above). This relationship is evolving, however; the introduction of the Ecmarkdown document production will change things.
+Ecmarkdown is meant to be used together with [Ecmarkup](https://github.com/bterlson/ecmarkup/). Ecmarkup has an `<emu-alg>` element within which Ecmarkdown numeric lists can be used, and in other contexts it treats the content of text nodes as Ecmarkdown fragments. In the other direction, several Ecmarkdown productions produce Ecmarkup elements (as noted above). This relationship is evolving, however.
 
 In short, we expect Ecmarkdown to be embedded within a larger Ecmarkup document, used for writing algorithm steps and other text in a concise format.
