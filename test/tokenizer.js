@@ -231,6 +231,15 @@ describe('Token:', function () {
       assertTok(t.next(), 'whitespace', ' ');
       assertTok(t.next(), 'text', '--foo');
     });
+
+    it('is not greedy', function () {
+      const t = new Tokenizer('foo<!-- -->bar<!-- -->baz');
+      assertTok(t.next(), 'text', 'foo');
+      assertTok(t.next(), 'comment', '<!-- -->');
+      assertTok(t.next(), 'text', 'bar');
+      assertTok(t.next(), 'comment', '<!-- -->');
+      assertTok(t.next(), 'text', 'baz');
+    });
   });
 
   describe('HTML tags', function () {
