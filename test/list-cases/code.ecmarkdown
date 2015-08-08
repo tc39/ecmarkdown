@@ -3,5 +3,6 @@
 1. The `stream.state` should be `"readable"`.
 1. `"strings"` are often in code, sometimes at the beginning.
 1. `Code can contain spaces`.
+1. Code can have formats in them, like so: `||`, `**`, `__`, and `~~`.
 1. Leftover backticks `code`cannot` get left there.
 1. If they're balanced though, it works: `perhaps`unanticipated`?`.
