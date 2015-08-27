@@ -151,6 +151,14 @@ describe('Token:', function () {
       assertTok(t.next(), 'text', 'foo');
     });
 
+    it('considers a list after a parabreak a list', function () {
+      const t = new Tokenizer('foo\n\n1. foo');
+      assertTok(t.next(), 'text', 'foo');
+      assertTok(t.next(), 'parabreak', '\n\n');
+      assertTok(t.next(), 'ol', '1. ');
+      assertTok(t.next(), 'text', 'foo');
+    });
+
     it('does not consider a number without a dot a list', function () {
       const t = new Tokenizer('1 foo');
       assertTok(t.next(), 'text', '1');
@@ -192,6 +200,14 @@ describe('Token:', function () {
       const t = new Tokenizer('foo\n* foo');
       assertTok(t.next(), 'text', 'foo');
       assertTok(t.next(), 'linebreak', '\n');
+      assertTok(t.next(), 'ul', '* ');
+      assertTok(t.next(), 'text', 'foo');
+    });
+
+    it('considers a list after a parabreak a list', function () {
+      const t = new Tokenizer('foo\n\n* foo');
+      assertTok(t.next(), 'text', 'foo');
+      assertTok(t.next(), 'parabreak', '\n\n');
       assertTok(t.next(), 'ul', '* ');
       assertTok(t.next(), 'text', 'foo');
     });
