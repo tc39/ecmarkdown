@@ -21,10 +21,11 @@ Bluebird.try(function () {
   });
 })
 .then(function () {
-  return baselineTester(beautified(ecmarkdown.fragment), {
+  return baselineTester(ecmarkdown.fragment, {
     casesDirectory: path.resolve(__dirname, 'fragment-cases'),
     inputExtension: 'ecmarkdown',
-    outputExtension: 'html'
+    outputExtension: 'html',
+    trim: false
   });
 })
 .done();

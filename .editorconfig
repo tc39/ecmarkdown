@@ -9,5 +9,8 @@ indent_style = space
 indent_size = 2
 
 # Input/output is 2-space indent
-[test/cases/*]
+[test/*-cases/*]
 indent_size = 2
+
+[test/fragment-cases/trailing-linebreaks.html]
+insert_final_newline = false
