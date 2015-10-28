@@ -1,0 +1,1 @@
+__proto__ should ~~render~~ as normal since __proto__ doesn't have **underscores** with any content in them.
