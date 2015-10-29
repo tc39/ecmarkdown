@@ -1,6 +1,6 @@
 {
   "name": "ecmarkdown",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "description": "A compiler for \"Ecmarkdown\" algorithm shorthand into HTML.",
   "main": "lib/ecmarkdown.js",
   "scripts": {
