@@ -91,7 +91,7 @@ Lists can be nested. To do so, use any number of spaces to indent; as long as th
 
 Within a fragment, the following can be used:
 
-**Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain whitespace or other formatting characters. You can use variables adjacent to other characters, e.g. as in `_SIMD_Constructor`, as long as the start of the variable is preceded by whitespace (e.g. `my_SIMD_constructor` does not contain any variables).
+**Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain whitespace or other formatting characters.
 
 **Values** are written as `*x*` and are translated to `<emu-val>x</emu-val>`. Values cannot contain asterisks.
 
@@ -99,7 +99,9 @@ Within a fragment, the following can be used:
 
 **Spec-level constants** are written as `~x~` and are translated to `<emu-const>x</emu-const>`. Spec-level constants cannot contain tildes.
 
-**Nonterminals** are written as `|x|`, `|x_opt|`, `|x[p]|`, or `|x[p]_opt|`. These are translated, respectively, into `<emu-nt>x</emu-nt>`, `<emu-nt optional>x</emu-nt>`, `<emu-nt params="p">x</emu-nt>`, or `<emu-nt params="p" optional>x</emu-nt>`. Nonterminal names can only be composed of letters. Params can be composed of anything except a closing square bracket.
+**Nonterminals** are written as `|x|`, `|x_opt|`, `|x[p]|`, or `|x[p]_opt|`. These are translated, respectively, into `<emu-nt>x</emu-nt>`, `<emu-nt optional>x</emu-nt>`, `<emu-nt params="p">x</emu-nt>`, or `<emu-nt params="p" optional>x</emu-nt>`. Nonterminal names can only be composed of letters and numbers. Params can be composed of anything except a closing square bracket.
+
+All formats can be started following non-alphanumeric and non-whitespace characters and can be ended following any non-whitespace character. The one exception is code formats which can begin and end in any context.  For example, `my_SIMD_constructor` does not contain any variables while `_SIMD_Constructor` does.
 
 You can escape any format above with a backslash. Escaping of any non-format characters will not be considered an escape and will render literally (eg. `\a` simply renders as `\a`). If you need a literal backslash before a formatting character, you must escape the backslash (eg. `\\*foo*` renders as `\<emu-val>foo</emu-val>`).
 
