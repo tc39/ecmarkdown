@@ -261,9 +261,9 @@ describe('Token:', function () {
   describe('HTML tags', function () {
 
     // this appears to be a deviation from GMD but seems like a good idea.
-    it('allows linebreaks', function () {
-      const t = new Tokenizer('<p\n>foo</p>');
-      assertTok(t.next(), 'tag', '<p\n>');
+    it('allows linebreak', function () {
+      const t = new Tokenizer('<p\n>xxx\nfoo</p>');
+      assertTok(t.next(), 'blockTag', '<p\n>xxx\n');
       assertTok(t.next(), 'text', 'foo');
       assertTok(t.next(), 'tag', '</p>');
     });
@@ -287,6 +287,27 @@ describe('Token:', function () {
       assertTok(t2.next(), 'text', 'foo');
     });
 
+    it('understands opaque tags', function () {
+      const t = new Tokenizer('# Header\n<emu-grammar>\n`foo`\n</emu-syntax>');
+      assertTok(t.next(), 'header', '#');
+      assertTok(t.next(), 'whitespace', ' ');
+      assertTok(t.next(), 'text', 'Header');
+      assertTok(t.next(), 'linebreak', '\n');
+      assertTok(t.next(), 'opaqueTag', '<emu-grammar>\n`foo`\n</emu-syntax>');
+      assertTok(t.next(), 'EOF');
+    });
+
+    it('understands block tags', function () {
+      const t = new Tokenizer('# Header\n<emu-note>\nfoo\n</emu-note>');
+      assertTok(t.next(), 'header', '#');
+      assertTok(t.next(), 'whitespace', ' ');
+      assertTok(t.next(), 'text', 'Header');
+      assertTok(t.next(), 'linebreak', '\n');
+      assertTok(t.next(), 'blockTag', '<emu-note>\n');
+      assertTok(t.next(), 'text', 'foo');
+      assertTok(t.next(), 'linebreak', '\n');
+      assertTok(t.next(), 'blockTag', '</emu-note>');
+    });
   });
 });
 

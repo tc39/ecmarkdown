@@ -15,6 +15,13 @@ Bluebird.try(function () {
 })
 .then(function () {
   return baselineTester(beautified(ecmarkdown.document), {
+    casesDirectory: path.resolve(__dirname, 'document-cases'),
+    inputExtension: 'ecmarkdown',
+    outputExtension: 'html'
+  });
+})
+.then(function () {
+  return baselineTester(beautified(ecmarkdown.document), {
     casesDirectory: path.resolve(__dirname, 'paragraph-cases'),
     inputExtension: 'ecmarkdown',
     outputExtension: 'html'
