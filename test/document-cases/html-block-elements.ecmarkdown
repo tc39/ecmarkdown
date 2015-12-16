@@ -1,0 +1,21 @@
+<div>This is a div *no emd*</div>
+*this is emd*
+*so is this*
+
+<section>*no emd here*
+  *but emd is allowed here*
+</section>*but not here*
+
+<table>
+  <tr>
+    <td>
+      *emd*
+    </td>
+  </tr>
+</table>
+
+*emd ok after two linebreaks of course*
+
+<p>p tags are blocks
+  *can have emd* but creates another p tag :(
+</p>

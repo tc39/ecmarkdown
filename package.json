@@ -35,5 +35,9 @@
     "mocha": "^2.2.5"
   },
   "author": "Domenic Denicola <d@domenic.me> (https://domenic.me/)",
+  "contributors": [
+    "Domenic Denicola <d@domenic.me> (https://domenic.me/)",
+    "Brian Terlson <brian.terlson@microsoft.com> (https://github.com/bterlson)"
+  ],
   "license": "WTFPL"
 }
