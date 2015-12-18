@@ -35,5 +35,6 @@
     "mocha": "^2.2.5",
     "pegjs": "^0.8.0"
   },
+  "author": "Domenic Denicola <d@domenic.me> (https://domenic.me/)",
   "license": "WTFPL"
 }

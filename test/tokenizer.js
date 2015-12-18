@@ -4,8 +4,8 @@ const Tokenizer = require('../lib/tokenizer.js');
 const formats = {
   star: '*',
   underscore: '_',
-  tick: '`',
   pipe: '|',
+  tick: '`',
   tilde: '~'
 };
 
@@ -306,6 +306,39 @@ describe('Token:', function () {
       assertTok(t2.next(), 'text', '<br');
       assertTok(t2.next(), 'whitespace', ' ');
       assertTok(t2.next(), 'text', 'foo');
+    });
+
+    it('does not recognize invalid tags', function () {
+      const invalidTags = [
+        '< startwithspace>',
+        '<withGarbage ->',
+        '<needs whitespace="true"after attributes>',
+        '<unclosed attribute="foo>',
+        '<tag attr=>'
+      ];
+
+      invalidTags.forEach(function (tag) {
+        const t = new Tokenizer(tag);
+        const tok = t.next();
+        assert(tok.name !== 'tag', 'should not parse ' + tag + ' as tag');
+      });
+    });
+
+    it('recognizes valid tags', function () {
+      const validTags = [
+        '<tag with spaces ok>',
+        '<tag    >',
+        '<tag attr=blah!blah attr2>',
+        '<tag attr=">">',
+        '<tag attr="\'">',
+        '<tag attr=\'foo\'>'
+      ];
+
+      validTags.forEach(function (tag) {
+        const t = new Tokenizer(tag);
+        const tok = t.next();
+        assert(tok.name === 'tag', 'should parse ' + tag + ' as tag');
+      });
     });
 
     it('understands opaque tags', function () {
