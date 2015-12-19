@@ -1,0 +1,43 @@
+<emu-intro>
+  # Introduction
+
+  This is a document describing Ecmarkdown.
+</emu-intro>
+
+<emu-clause id="c1">
+  # Clause 1
+  This is paragraph content. You can reference _variables_ and other
+  inline formatting in paragraphs too.
+
+  1. Numeric lists are implicitly counted as algorithms.
+  2. Everyone loves algorithms.
+
+  This is paragraph content.
+
+  ## Syntax
+
+  Second-level headings are rare in most Ecmarkdown documents, as
+  `<emu-clause>` plus first-level headings usually serve better. But
+  in some cases you want a heading that does not show up in the table
+  of contents, so you can use `##` or `###` syntax.
+
+  <emu-grammar>
+    Foo :
+      `bar` Baz
+  </emu-grammar>
+
+  The contents of `<emu-grammar>`, `<emu-production>`, `<pre>`,
+  `<code>` and `<script>` tags are left alone by Ecmarkdown.
+
+  <emu-clause id="sub-clause">
+    # Foo(_p1_, _p2_)
+    Notice how headers can also use Ecmarkdown inline elements.
+  </emu-clause>
+
+  <aside>This content will *not* be processed by Ecmarkdown.
+
+  But this content will be, since it's on a new line.
+
+  It's being on the same line as an opening that
+  stops processing.</aside>
+</emu-clause>
