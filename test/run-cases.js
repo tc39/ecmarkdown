@@ -6,34 +6,10 @@ const beautify = require('./helpers/beautify.js');
 
 const ecmarkdown = require('..');
 
-Bluebird.try(function () {
-  return baselineTester(beautified(ecmarkdown.document), {
-    casesDirectory: path.resolve(__dirname, 'list-cases'),
-    inputExtension: 'ecmarkdown',
-    outputExtension: 'html'
-  });
-})
-.then(function () {
-  return baselineTester(beautified(ecmarkdown.document), {
-    casesDirectory: path.resolve(__dirname, 'document-cases'),
-    inputExtension: 'ecmarkdown',
-    outputExtension: 'html'
-  });
-})
-.then(function () {
-  return baselineTester(beautified(ecmarkdown.document), {
-    casesDirectory: path.resolve(__dirname, 'paragraph-cases'),
-    inputExtension: 'ecmarkdown',
-    outputExtension: 'html'
-  });
-})
-.then(function () {
-  return baselineTester(ecmarkdown.fragment, {
-    casesDirectory: path.resolve(__dirname, 'fragment-cases'),
-    inputExtension: 'ecmarkdown',
-    outputExtension: 'html',
-    trim: false
-  });
+baselineTester(beautified(ecmarkdown), {
+  casesDirectory: path.resolve(__dirname, 'cases'),
+  inputExtension: 'ecmarkdown',
+  outputExtension: 'html'
 })
 .done();
 
