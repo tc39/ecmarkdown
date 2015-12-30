@@ -249,10 +249,9 @@ describe('Token:', function () {
   describe('HTML comments', function () {
 
     // this appears to be a deviation from GMD but seems like a good idea.
-    it('allows linebreaks', function () {
+    it('allows block comments', function () {
       const t = new Tokenizer('<!--\n-->foo');
-      assertTok(t.next(), 'comment', '<!--\n-->');
-      assertTok(t.next(), 'text', 'foo');
+      assertTok(t.next(), 'blockTag', '<!--\n-->foo');
     });
 
     it('can follow characters', function () {

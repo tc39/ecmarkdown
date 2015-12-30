@@ -9,7 +9,10 @@
   1. Step 1
   2. Step 2
 
-  This is paragraph content.
+  This is paragraph <!-- inline --> content.
+  <!-- block comment, not part of previous graph -->
+
+  <!-- block comment, don't wrap in p tags -->
 
   ## Syntax
   <emu-grammar>
