@@ -159,11 +159,11 @@ Lists can be nested. To do so, use any number of spaces to indent; as long as th
 
 #### HTML Blocks
 
-Any line which starts with a block-level HTML tag ([as defined by CommonMark](http://spec.commonmark.org/0.22/#html-blocks), with the addition of `<emu-note>`, `<emu-clause>`, `<emu-intro>`, and `<emu-annex>`) is a HTML block line. Ecmarkdown cannot be used on the line starting a HTML block, but subsequent lines before the closing tag do allow it.
+Any line which starts with a block-level HTML tag ([as defined by CommonMark](http://spec.commonmark.org/0.22/#html-blocks), with the addition of `<emu-note>`, `<emu-clause>`, `<emu-intro>`, `<emu-annex>`, `<emu-biblio>`, `<emu-import>`, `<emu-table>`, `<emu-figure>`, `<emu-example>`, `<emu-alg>`, and `<emu-see-also-para>`) is a HTML block line. Ecmarkdown cannot be used on the line starting a HTML block, but subsequent lines before the closing tag do allow it.
 
 #### Opaque HTML Blocks
 
-The tags `<emu-grammar>`, `<emu-production>`, `<pre>`, `<code>`, `<script>`, and `<style>` are considered opaque. Their entire contents, until their closing tag is seen, are left alone, with no Ecmarkdown processing or HTML escaping. As with ordinary HTML blocks, this only applies if the tag begins the line; if they are seen mid-line they will be treated as inline HTML.
+The tags `<emu-grammar>`, `<emu-eqn>`, `<emu-production>`, `<pre>`, `<code>`, `<script>`, and `<style>` are considered opaque. Their entire contents, until their closing tag is seen, are left alone, with no Ecmarkdown processing or HTML escaping. As with ordinary HTML blocks, this only applies if the tag begins the line; if they are seen mid-line they will be treated as inline HTML.
 
 ### Inline Formatting
 
