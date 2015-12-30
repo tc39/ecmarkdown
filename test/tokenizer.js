@@ -276,6 +276,12 @@ describe('Token:', function () {
       assertTok(t.next(), 'comment', '<!-- -->');
       assertTok(t.next(), 'text', 'baz');
     });
+
+    it('handles only block tags', function () {
+      const t = new Tokenizer('<emu-clause>');
+      assertTok(t.next(), 'blockTag', '<emu-clause>');
+      assertTok(t.next(), 'EOF');
+    });
   });
 
   describe('HTML tags', function () {
