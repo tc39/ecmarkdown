@@ -3,8 +3,9 @@
   "version": "3.0.9",
   "description": "A compiler for \"Ecmarkdown\" algorithm shorthand into HTML.",
   "main": "lib/ecmarkdown.js",
+  "types": "lib/ecmarkdown.d.ts",
   "scripts": {
-    "test": "mocha --reporter dot test/tokenizer.js && node test/run-cases.js",
+    "test": "mocha --reporter dot test/tokenizer.js test/parser.js && node test/run-cases.js",
     "lint": "eslint lib && jscs lib && eslint test && jscs test"
   },
   "repository": "domenic/ecmarkdown",
@@ -19,7 +20,8 @@
     "code"
   ],
   "files": [
-    "lib/*.js"
+    "lib/*.js",
+    "lib/*.d.ts"
   ],
   "dependencies": {
     "escape-html": "^1.0.1"
