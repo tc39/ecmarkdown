@@ -6,7 +6,7 @@ const beautify = require('./helpers/beautify.js');
 
 const ecmarkdown = require('..');
 
-baselineTester(beautified(ecmarkdown), {
+baselineTester(beautified(ecmarkdown.process), {
   casesDirectory: path.resolve(__dirname, 'cases'),
   inputExtension: 'ecmarkdown',
   outputExtension: 'html'

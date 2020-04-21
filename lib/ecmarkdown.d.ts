@@ -1,6 +1,10 @@
 declare module "ecmarkdown" {
-    export = ecmarkdown;
-    function ecmarkdown(ecmarkdownText: string): string;
+    export interface Options {
+        trackPositions?: boolean,
+    }
+    export function parse(str: string, options?: Options): Parser.DocumentNode;
+    export function emit(ast: Parser.DocumentNode): string;
+    export function process(str: string, options?: Options): string;
 }
 
 declare module "ecmarkdown/lib/tokenizer" {
@@ -128,6 +132,166 @@ declare module "ecmarkdown/lib/tokenizer" {
     }
 }
 
+
+declare namespace Parser {
+    interface DocumentNode {
+        name: "document";
+        contents: ParagraphNode[];
+        location?: { pos: number, end: number };
+    }
+
+    interface HeaderNode {
+        name: "header";
+        level: number;
+        contents: FragmentNode[];
+        location?: { pos: number, end: number };
+    }
+
+    interface BlockTagNode {
+        name: "blockTag";
+        contents: string;
+        location?: { pos: number, end: number };
+    }
+
+    interface OpaqueTagNode {
+        name: "opaqueTag";
+        contents: string;
+        location?: { pos: number, end: number };
+    }
+
+    interface TagNode {
+        name: "tag";
+        contents: string;
+        location?: { pos: number, end: number };
+    }
+
+    interface CommentNode {
+        name: "comment";
+        contents: string;
+        location?: { pos: number, end: number };
+    }
+
+    interface AlgorithmNode {
+        name: "algorithm";
+        contents: OrderedListNode;
+        location?: { pos: number, end: number };
+    }
+
+    interface TextNode {
+        name: "text";
+        contents: string;
+        location?: { pos: number, end: number };
+    }
+
+    interface StarNode {
+        name: "star";
+        contents: FragmentNode[];
+        location?: { pos: number, end: number };
+    }
+
+    interface UnderscoreNode {
+        name: "underscore";
+        contents: FragmentNode[];
+        location?: { pos: number, end: number };
+    }
+
+    interface TickNode {
+        name: "tick";
+        contents: FragmentNode[];
+        location?: { pos: number, end: number };
+    }
+
+    interface TildeNode {
+        name: "tilde";
+        contents: FragmentNode[];
+        location?: { pos: number, end: number };
+    }
+
+    interface PipeNode {
+        name: "pipe";
+        nonTerminal: string;
+        params: string;
+        optional: boolean;
+        contents: null;
+        location?: { pos: number, end: number };
+    }
+
+    type FormatNode =
+        | StarNode
+        | UnderscoreNode
+        | TickNode
+        | TildeNode
+        | PipeNode;
+
+    interface UnorderedListNode {
+        name: "ul";
+        indent: number;
+        contents: ListItemNode[];
+        location?: { pos: number, end: number };
+    }
+
+    interface OrderedListNode {
+        name: "ol";
+        indent: number;
+        start: number;
+        contents: ListItemNode[];
+        location?: { pos: number, end: number };
+    }
+
+    interface ListItemNode {
+        name: "list-item";
+        contents: ListItemContentNode[];
+        location?: { pos: number, end: number };
+    }
+
+    interface NonListNode {
+        name: "non-list";
+        contents: FragmentNode[];
+        location?: { pos: number, end: number };
+    }
+
+    type ListItemContentNode =
+        | FragmentNode
+        | ListNode;
+
+    type FragmentNode =
+        | TextNode
+        | FormatNode
+        | CommentNode
+        | TagNode;
+
+    type ListNode =
+        | UnorderedListNode
+        | OrderedListNode;
+
+    type ParagraphNode =
+        | HeaderNode
+        | BlockTagNode
+        | OpaqueTagNode
+        | AlgorithmNode
+        | NonListNode
+        | ListNode;
+
+    type Node =
+        | DocumentNode
+        | HeaderNode
+        | BlockTagNode
+        | OpaqueTagNode
+        | TagNode
+        | CommentNode
+        | AlgorithmNode
+        | TextNode
+        | StarNode
+        | UnderscoreNode
+        | TickNode
+        | TildeNode
+        | PipeNode
+        | UnorderedListNode
+        | OrderedListNode
+        | ListItemNode
+        | NonListNode;
+}
+
 declare module "ecmarkdown/lib/parser" {
     import Tokenizer = require("ecmarkdown/lib/tokenizer");
 
@@ -152,165 +316,6 @@ declare module "ecmarkdown/lib/parser" {
         private getPos;
         private getEnd;
         private finish;
-    }
-
-    namespace Parser {
-        interface DocumentNode {
-            name: "document";
-            contents: ParagraphNode[];
-            location?: { pos: number, end: number };
-        }
-
-        interface HeaderNode {
-            name: "header";
-            level: number;
-            contents: FragmentNode[];
-            location?: { pos: number, end: number };
-        }
-
-        interface BlockTagNode {
-            name: "blockTag";
-            contents: string;
-            location?: { pos: number, end: number };
-        }
-
-        interface OpaqueTagNode {
-            name: "opaqueTag";
-            contents: string;
-            location?: { pos: number, end: number };
-        }
-
-        interface TagNode {
-            name: "tag";
-            contents: string;
-            location?: { pos: number, end: number };
-        }
-
-        interface CommentNode {
-            name: "comment";
-            contents: string;
-            location?: { pos: number, end: number };
-        }
-
-        interface AlgorithmNode {
-            name: "algorithm";
-            contents: OrderedListNode;
-            location?: { pos: number, end: number };
-        }
-
-        interface TextNode {
-            name: "text";
-            contents: string;
-            location?: { pos: number, end: number };
-        }
-
-        interface StarNode {
-            name: "star";
-            contents: FragmentNode[];
-            location?: { pos: number, end: number };
-        }
-
-        interface UnderscoreNode {
-            name: "underscore";
-            contents: FragmentNode[];
-            location?: { pos: number, end: number };
-        }
-
-        interface TickNode {
-            name: "tick";
-            contents: FragmentNode[];
-            location?: { pos: number, end: number };
-        }
-
-        interface TildeNode {
-            name: "tilde";
-            contents: FragmentNode[];
-            location?: { pos: number, end: number };
-        }
-
-        interface PipeNode {
-            name: "pipe";
-            nonTerminal: string;
-            params: string;
-            optional: boolean;
-            contents: null;
-            location?: { pos: number, end: number };
-        }
-
-        type FormatNode =
-            | StarNode
-            | UnderscoreNode
-            | TickNode
-            | TildeNode
-            | PipeNode;
-
-        interface UnorderedListNode {
-            name: "ul";
-            indent: number;
-            contents: ListItemNode[];
-            location?: { pos: number, end: number };
-        }
-
-        interface OrderedListNode {
-            name: "ol";
-            indent: number;
-            start: number;
-            contents: ListItemNode[];
-            location?: { pos: number, end: number };
-        }
-
-        interface ListItemNode {
-            name: "list-item";
-            contents: ListItemContentNode[];
-            location?: { pos: number, end: number };
-        }
-
-        interface NonListNode {
-            name: "non-list";
-            contents: FragmentNode[];
-            location?: { pos: number, end: number };
-        }
-
-        type ListItemContentNode =
-            | FragmentNode
-            | ListNode;
-
-        type FragmentNode =
-            | TextNode
-            | FormatNode
-            | CommentNode
-            | TagNode;
-
-        type ListNode =
-            | UnorderedListNode
-            | OrderedListNode;
-
-        type ParagraphNode =
-            | HeaderNode
-            | BlockTagNode
-            | OpaqueTagNode
-            | AlgorithmNode
-            | NonListNode
-            | ListNode;
-
-        type Node =
-            | DocumentNode
-            | HeaderNode
-            | BlockTagNode
-            | OpaqueTagNode
-            | TagNode
-            | CommentNode
-            | AlgorithmNode
-            | TextNode
-            | StarNode
-            | UnderscoreNode
-            | TickNode
-            | TildeNode
-            | PipeNode
-            | UnorderedListNode
-            | OrderedListNode
-            | ListItemNode
-            | NonListNode;
     }
 }
 
