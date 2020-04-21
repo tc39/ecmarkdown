@@ -32,7 +32,7 @@
     "eslint": "^0.24.1",
     "glob": "^5.0.3",
     "inline-elements": "^1.0.0",
-    "js-beautify": "^1.5.5",
+    "js-beautify": "1.5.5",
     "jscs": "^1.13.1",
     "mocha": "^2.2.5"
   },
