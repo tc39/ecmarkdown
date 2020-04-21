@@ -240,9 +240,11 @@ export class Parser {
   parseText(opts: ParseFragmentOpts, closingFormatKind: Format | void) {
     this.pushPos();
     let contents = '';
+    let lastRealTok = null;
 
     while (true) {
       let tok = this._t.peek();
+      let firstTok = tok;
 
       if (tok.name === 'linebreak' && opts.oneLine) {
         break;
@@ -265,6 +267,7 @@ export class Parser {
       ) {
         break;
       }
+      lastRealTok = firstTok;
 
       contents += wsChunk;
 
@@ -306,7 +309,8 @@ export class Parser {
       this._t.next();
     }
 
-    return this.finish({ name: 'text', contents });
+    let endLoc = !this._posStack || lastRealTok === null ? undefined : lastRealTok.location.end;
+    return this.finish({ name: 'text', contents }, undefined, endLoc);
   }
 
   parseFormat(format: Format, opts: ParseFragmentOpts): FragmentNode[] {
@@ -373,23 +377,27 @@ export class Parser {
     return this._posStack ? this._posStack.pop() : -1;
   }
 
-  getPos(tok: Node | Token = this._t.peek()) {
-    return this._posStack && tok.location ? tok.location.pos : -1;
+  getPos(node: Node | Token = this._t.peek()) {
+    return this._posStack && node.location ? node.location.start : -1;
   }
 
   getEnd(node: Node | Token) {
     return this._posStack && node.location ? node.location.end : -1;
   }
 
-  finish<T extends Node>(node: T, pos: number | void, end: number | void): T {
-    if (pos === undefined) {
-      pos = this.popPos();
-    }
-    if (end === undefined) {
-      end = this.getPos();
-    }
+  finish<T extends Node>(node: T, start: number | void, end: number | void): T {
     if (this._posStack) {
-      node.location = { pos: pos as number, end };
+      node.location = { start, end };
+      if (start === undefined) {
+        start = this.popPos();
+      }
+      if (end === undefined) {
+        end =
+          this._t.previous === undefined
+            ? { line: 1, column: 0, offset: 0 }
+            : this._t.previous.location.end;
+      }
+      node.location = { start, end };
     }
     return node;
   }
