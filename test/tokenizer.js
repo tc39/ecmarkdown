@@ -9,9 +9,12 @@ const formats = {
   tilde: '~'
 };
 
-function assertTok(tok, name, contents) {
+function assertTok(tok, name, contents, location) {
   assert.equal(tok.name, name);
   assert.equal(tok.contents, contents);
+  if (location) {
+    assert.deepEqual(tok.location, location);
+  }
 }
 
 describe('Tokenizer#peek', function () {
@@ -424,5 +427,13 @@ describe('backslash escapes', function () {
     const t = new Tokenizer('\\a');
     assertTok(t.next(), 'text', '\\a');
     assertTok(t.next(), 'EOF');
+  });
+});
+
+describe('Tokenizer', function () {
+  it('tracks positions', function () {
+    const t = new Tokenizer('1. foo', { trackPositions: true });
+    assertTok(t.next(), 'ol', '1. ', { pos: 0, end: 3 });
+    assertTok(t.next(), 'text', 'foo', { pos: 3, end: 6 });
   });
 });
