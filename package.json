@@ -6,7 +6,7 @@
   "types": "lib/ecmarkdown.d.ts",
   "scripts": {
     "test": "mocha --reporter dot test/tokenizer.js test/parser.js && node test/run-cases.js",
-    "lint": "eslint lib && jscs lib && eslint test && jscs test"
+    "lint": "eslint lib test"
   },
   "repository": "domenic/ecmarkdown",
   "keywords": [
@@ -29,11 +29,10 @@
   "devDependencies": {
     "baseline-tester": "^1.1.1",
     "bluebird": "^2.9.14",
-    "eslint": "^0.24.1",
+    "eslint": "^6.8.0",
     "glob": "^5.0.3",
     "inline-elements": "^1.0.0",
     "js-beautify": "1.5.5",
-    "jscs": "^1.13.1",
     "mocha": "^2.2.5"
   },
   "author": "Domenic Denicola <d@domenic.me> (https://domenic.me/)",
