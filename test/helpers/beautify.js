@@ -15,5 +15,5 @@ module.exports = function beautify(html) {
   // Remove empty =""s
   const withSimplifiedAttributes = fixNewlines.replace(/=""/g, '');
 
-  return withSimplifiedAttributes;
+  return withSimplifiedAttributes + '\n';
 };
