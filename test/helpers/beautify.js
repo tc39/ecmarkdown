@@ -6,7 +6,7 @@ module.exports = function beautify(html) {
   const originalOutput = beautifyWithBugs(html, {
     indent_size: 2,
     wrap_line_length: 0,
-    unformatted: ['emu-const', 'emu-val', 'emu-nt', 'emu-grammar'].concat(inlineElements)
+    unformatted: ['emu-const', 'emu-val', 'emu-nt', 'emu-grammar'].concat(inlineElements),
   });
 
   // https://github.com/beautify-web/js-beautify/issues/524#issuecomment-82791022
