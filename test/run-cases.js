@@ -9,9 +9,8 @@ const ecmarkdown = require('..');
 baselineTester(beautified(ecmarkdown.process), {
   casesDirectory: path.resolve(__dirname, 'cases'),
   inputExtension: 'ecmarkdown',
-  outputExtension: 'html'
-})
-.done();
+  outputExtension: 'html',
+}).done();
 
 function beautified(fn) {
   // In order to be able to read the test case outputs, we write them with nice linebreaks and spacing.

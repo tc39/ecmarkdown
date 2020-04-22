@@ -6,7 +6,7 @@ const formats = {
   underscore: '_',
   pipe: '|',
   tick: '`',
-  tilde: '~'
+  tilde: '~',
 };
 
 function assertTok(tok, name, contents, location) {
@@ -250,7 +250,6 @@ describe('Token:', function () {
   });
 
   describe('HTML comments', function () {
-
     // this appears to be a deviation from GMD but seems like a good idea.
     it('allows block comments', function () {
       const t = new Tokenizer('<!--\n-->foo');
@@ -288,7 +287,6 @@ describe('Token:', function () {
   });
 
   describe('HTML tags', function () {
-
     // this appears to be a deviation from GMD but seems like a good idea.
     it('allows linebreak', function () {
       const t = new Tokenizer('<p\n>xxx\nfoo</p>');
@@ -322,7 +320,7 @@ describe('Token:', function () {
         '<withGarbage ->',
         '<needs whitespace="true"after attributes>',
         '<unclosed attribute="foo>',
-        '<tag attr=>'
+        '<tag attr=>',
       ];
 
       invalidTags.forEach(function (tag) {
@@ -339,7 +337,7 @@ describe('Token:', function () {
         '<tag attr=blah!blah attr2>',
         '<tag attr=">">',
         '<tag attr="\'">',
-        '<tag attr=\'foo\'>'
+        "<tag attr='foo'>",
       ];
 
       validTags.forEach(function (tag) {
