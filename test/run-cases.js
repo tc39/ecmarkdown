@@ -1,23 +1,44 @@
 'use strict';
+const assert = require('assert');
+const fs = require('fs');
 const path = require('path');
-const Bluebird = require('bluebird');
-const baselineTester = Bluebird.promisify(require('baseline-tester'));
 const beautify = require('./helpers/beautify.js');
+const Mocha = require('mocha');
 
 const ecmarkdown = require('..');
 
-baselineTester(beautified(ecmarkdown.process), {
-  casesDirectory: path.resolve(__dirname, 'cases'),
-  inputExtension: 'ecmarkdown',
-  outputExtension: 'html',
-}).done();
+let shouldUpdate = process.argv.includes('-u') || process.argv.includes('--update');
 
-function beautified(fn) {
-  // In order to be able to read the test case outputs, we write them with nice linebreaks and spacing.
-  // However, Ecmarkdown does not output such beautiful HTML, largely for speed reasons (and also it is probably
-  // redundant as you would instead beautify the outer document). Thus, we beautify the Ecmarkdown output before
-  // comparing it to the test case outputs.
-  return function () {
-    return beautify(fn.apply(undefined, arguments));
-  };
+let mocha = new Mocha();
+let cases = path.resolve(__dirname, 'cases');
+for (let file of fs.readdirSync(cases)) {
+  if (!file.endsWith('.ecmarkdown')) {
+    continue;
+  }
+  mocha.suite.addTest(
+    new Mocha.Test(file, () => {
+      let snapshotFile = path.resolve(cases, file.replace(/ecmarkdown$/, 'html'));
+
+      let input = fs.readFileSync(path.resolve(cases, file), 'utf8');
+      let rawOutput = ecmarkdown.process(input);
+      let output = beautify(rawOutput);
+      let existing = fs.existsSync(snapshotFile) ? fs.readFileSync(snapshotFile, 'utf8') : null;
+      if (shouldUpdate) {
+        if (existing !== output) {
+          console.log('updated ' + file);
+          fs.writeFileSync(snapshotFile, output, 'utf8');
+          existing = output;
+        }
+      }
+      if (existing === null) {
+        throw new assert.AssertionError(
+          `could not find snapshot for ${file}; perhaps you need to regenerate snapshots?`
+        );
+      }
+      assert.strictEqual(existing, output);
+    })
+  );
 }
+mocha.run(failures => {
+  process.exitCode = failures ? 1 : 0;
+});
