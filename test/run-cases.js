@@ -1,16 +1,21 @@
 'use strict';
 const path = require('path');
-const Bluebird = require('bluebird');
-const baselineTester = Bluebird.promisify(require('baseline-tester'));
+const baselineTester = require('baseline-tester');
 const beautify = require('./helpers/beautify.js');
 
 const ecmarkdown = require('..');
 
-baselineTester(beautified(ecmarkdown.process), {
-  casesDirectory: path.resolve(__dirname, 'cases'),
-  inputExtension: 'ecmarkdown',
-  outputExtension: 'html',
-}).done();
+baselineTester(
+  beautified(ecmarkdown.process),
+  {
+    casesDirectory: path.resolve(__dirname, 'cases'),
+    inputExtension: 'ecmarkdown',
+    outputExtension: 'html',
+  },
+  failures => {
+    process.exitCode = failures ? 1 : 0;
+  }
+);
 
 function beautified(fn) {
   // In order to be able to read the test case outputs, we write them with nice linebreaks and spacing.
