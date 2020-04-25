@@ -1,22 +1,43 @@
-'use strict';
+import type {
+  Node,
+  PipeNode,
+  TildeNode,
+  TickNode,
+  TextNode,
+  TagNode,
+  NonListNode,
+  UnderscoreNode,
+  StarNode,
+  ListItemNode,
+  OrderedListNode,
+  UnorderedListNode,
+  HeaderNode,
+  AlgorithmNode,
+  DocumentNode,
+  BlockTagNode,
+  OpaqueTagNode,
+  CommentNode,
+} from './node-types';
 
-module.exports = class Emitter {
+export class Emitter {
+  str: string;
+
   constructor() {
     this.str = '';
   }
 
-  emit(node) {
+  emit(node: Node) {
     this.emitNode(node);
 
     return this.str;
   }
 
-  static emit(doc) {
+  static emit(doc: Node) {
     const emitter = new Emitter();
     return emitter.emit(doc);
   }
 
-  emitNode(node) {
+  emitNode(node: Node | Node[]) {
     if (Array.isArray(node)) {
       this.emitFragment(node);
       return;
@@ -69,81 +90,82 @@ module.exports = class Emitter {
         this.emitHeader(node);
         break;
       default:
+        // @ts-ignore
         throw new Error("Can't emit " + node.name);
     }
   }
 
-  emitDocument(document) {
+  emitDocument(document: DocumentNode) {
     document.contents.forEach(p => this.emitNode(p));
   }
 
-  emitAlgorithm(algorithm) {
+  emitAlgorithm(algorithm: AlgorithmNode) {
     this.str += '<emu-alg>';
     this.emitOrderedList(algorithm.contents);
     this.str += '</emu-alg>';
   }
 
-  emitHeader(header) {
+  emitHeader(header: HeaderNode) {
     this.wrapFragment('h' + header.level, header.contents);
   }
 
-  emitOrderedList(ol) {
+  emitOrderedList(ol: OrderedListNode) {
     this.str += '<ol';
     if (ol.start !== 1) {
       this.str += ' start="' + ol.start + '"';
     }
     this.str += '>';
-    ol.contents.forEach(item => this.emitListItem(item));
+    ol.contents.forEach((item: ListItemNode) => this.emitListItem(item));
     this.str += '</ol>';
   }
 
-  emitUnorderedList(ul) {
+  emitUnorderedList(ul: UnorderedListNode) {
     this.str += '<ul>';
-    ul.contents.forEach(item => this.emitListItem(item));
+    ul.contents.forEach((item: ListItemNode) => this.emitListItem(item));
     this.str += '</ul>';
   }
 
-  emitListItem(li) {
+  emitListItem(li: ListItemNode) {
     this.str += '<li>';
     this.emitFragment(li.contents);
     this.str += '</li>';
   }
 
-  emitStar(node) {
+  emitStar(node: StarNode) {
     this.wrapFragment('emu-val', node.contents);
   }
 
-  emitUnderscore(node) {
+  emitUnderscore(node: UnderscoreNode) {
     this.wrapFragment('var', node.contents);
   }
 
-  emitParagraph(p) {
+  emitParagraph(p: NonListNode) {
     this.str += '<p>';
     this.emitFragment(p.contents);
     this.str += '</p>';
   }
 
-  emitTag(tag) {
+  emitTag(tag: BlockTagNode | OpaqueTagNode | CommentNode | TagNode) {
     this.str += tag.contents;
   }
 
-  emitText(text) {
+  emitText(text: TextNode) {
     this.str += text.contents;
   }
 
-  emitTick(node) {
+  emitTick(node: TickNode) {
     this.wrapFragment('code', node.contents);
   }
 
-  emitTilde(node) {
+  emitTilde(node: TildeNode) {
     this.wrapFragment('emu-const', node.contents);
   }
 
-  emitFragment(fragment) {
+  emitFragment(fragment: Node[]) {
     fragment.forEach(p => this.emitNode(p));
   }
 
-  emitPipe(pipe) {
+  emitPipe(pipe: PipeNode) {
     this.str += '<emu-nt';
 
     if (pipe.params) {
@@ -157,9 +179,9 @@ module.exports = class Emitter {
     this.str += '>' + pipe.nonTerminal + '</emu-nt>';
   }
 
-  wrapFragment(wrapping, fragment) {
+  wrapFragment(wrapping: string, fragment: Node[]) {
     this.str += `<${wrapping}>`;
     this.emitFragment(fragment);
     this.str += `</${wrapping}>`;
   }
-};
+}

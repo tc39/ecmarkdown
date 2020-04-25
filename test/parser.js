@@ -1,7 +1,7 @@
 'use strict';
 const assert = require('assert');
-const Tokenizer = require('../lib/tokenizer.js');
-const Parser = require('../lib/parser.js');
+const Tokenizer = require('../dist/tokenizer.js').Tokenizer;
+const Parser = require('../dist/parser.js').Parser;
 
 describe('Parser', function () {
   function assertNode(node, name, location) {

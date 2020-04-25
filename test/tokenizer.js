@@ -1,6 +1,6 @@
 'use strict';
 const assert = require('assert');
-const Tokenizer = require('../lib/tokenizer.js');
+const Tokenizer = require('../dist/tokenizer.js').Tokenizer;
 const formats = {
   star: '*',
   underscore: '_',

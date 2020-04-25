@@ -1,16 +1,45 @@
-'use strict';
-const Tokenizer = require('./tokenizer.js');
-const escapeHtml = require('escape-html');
+import type {
+  Token,
+  NotEOFToken,
+  Format,
+  FormatToken,
+  OrderedListToken,
+  UnorderedListToken,
+  WhitespaceToken,
+  LinebreakToken,
+  Node,
+  PipeNode,
+  TextNode,
+  CommentNode,
+  TagNode,
+  FragmentNode,
+  ListItemContentNode,
+  OrderedListNode,
+  UnorderedListNode,
+} from './node-types';
 
-// The `contents` property of a text node is a string. In all other nodes, it's an array.
+import type { Options } from './ecmarkdown';
 
-module.exports = class Parser {
-  constructor(tokenizer, options) {
+// TODO types for escapeHtml
+// @ts-ignore
+import escapeHtml from 'escape-html';
+
+import { Tokenizer } from './tokenizer';
+
+type ThingWithContents = Exclude<Node, PipeNode> | NotEOFToken;
+
+type ParseFragmentOpts = { oneLine?: boolean; inList?: boolean };
+
+export class Parser {
+  _t: Tokenizer;
+  _posStack: number[] | void;
+
+  constructor(tokenizer: Tokenizer, options?: Options) {
     this._t = tokenizer;
     this._posStack = options && options.trackPositions ? [] : undefined;
   }
 
-  static parse(str, options) {
+  static parse(str: string, options?: Options) {
     let tokenizer = new Tokenizer(str, options);
     return new Parser(tokenizer, options).parseDocument();
   }
@@ -83,20 +112,20 @@ module.exports = class Parser {
 
   parseAlgorithm() {
     this.pushPos();
-    return this.finish({ name: 'algorithm', contents: this.parseList() });
+    return this.finish({ name: 'algorithm', contents: this.parseList() as OrderedListNode });
   }
 
   parseList() {
     this.pushPos();
-    const startTok = this._t.peek();
+    const startTok = this._t.peek() as OrderedListToken | UnorderedListToken;
 
-    let node;
+    let node: OrderedListNode | UnorderedListNode;
     if (startTok.name === 'ul') {
       const match = startTok.contents.match(/(\s*)\* /);
-      node = { name: 'ul', indent: match[1].length, contents: [] };
+      node = { name: 'ul', indent: match![1].length, contents: [] };
     } else {
       const match = startTok.contents.match(/(\s*)([^.]+)\. /);
-      node = { name: 'ol', indent: match[1].length, start: Number(match[2]), contents: [] };
+      node = { name: 'ol', indent: match![1].length, start: Number(match![2]), contents: [] };
     }
 
     while (true) {
@@ -106,7 +135,7 @@ module.exports = class Parser {
         break;
       }
 
-      let tokMatch = tok.contents.match(/\s*/)[0];
+      let tokMatch = tok.contents.match(/\s*/)![0];
       if (tokMatch.length !== node.indent) {
         // part of a different list
         break;
@@ -123,12 +152,12 @@ module.exports = class Parser {
     return this.finish({ name: 'non-list', contents: this.parseFragment({}) });
   }
 
-  parseListItem(indent) {
+  parseListItem(indent: number) {
     this.pushPos();
     // consume list token
     this._t.next();
 
-    const contents = this.parseFragment({ inList: true });
+    const contents: ListItemContentNode[] = this.parseFragment({ inList: true });
 
     const listItemTok = this._t.peek();
 
@@ -136,7 +165,7 @@ module.exports = class Parser {
     if (isList(listItemTok)) {
       const match = listItemTok.contents.match(/^(\s*)/);
 
-      if (match[1].length > indent) {
+      if (match![1].length > indent) {
         contents.push(this.parseList());
       }
     }
@@ -144,8 +173,13 @@ module.exports = class Parser {
     return this.finish({ name: 'list-item', contents });
   }
 
-  parseFragment(opts, closingFormatKind) {
-    let frag = [];
+  parseFragment(opts: ParseFragmentOpts): FragmentNode[];
+  parseFragment(
+    opts: ParseFragmentOpts,
+    closingFormatKind: Format
+  ): (TextNode | CommentNode | TagNode)[];
+  parseFragment(opts: ParseFragmentOpts, closingFormatKind?: Format) {
+    let frag: FragmentNode[] = [];
 
     while (true) {
       const tok = this._t.peek();
@@ -181,7 +215,7 @@ module.exports = class Parser {
           frag = frag.concat(this.parseFormat(tok.name, opts));
         }
       } else if (tok.name === 'comment' || tok.name === 'tag') {
-        frag.push(tok);
+        frag.push(tok as CommentNode | TagNode); // Why can't TS infer this type?
         this._t.next();
       } else if (isList(tok)) {
         if (opts.inList) {
@@ -192,6 +226,7 @@ module.exports = class Parser {
           pushOrJoin(frag, this.finish({ name: 'text', contents: tok.contents }));
         }
       } else {
+        // @ts-ignore
         throw new Error('Unexpected token ' + tok.name);
       }
     }
@@ -202,7 +237,7 @@ module.exports = class Parser {
   // Text is either text tokens or whitespace tokens
   // list tokens are considered part of text if we're not in a list
   // format tokens are considered part of text if they're not a valid format
-  parseText(opts, closingFormatKind) {
+  parseText(opts: ParseFragmentOpts, closingFormatKind: Format | void) {
     this.pushPos();
     let contents = '';
 
@@ -242,7 +277,7 @@ module.exports = class Parser {
         }
 
         if (closingFormatKind === undefined || tok.name === closingFormatKind) {
-          const prev = this._t.previous;
+          const prev = this._t.previous as NotEOFToken;
           const next = this._t.peek(2);
           const closing = tok.name === closingFormatKind;
 
@@ -274,13 +309,13 @@ module.exports = class Parser {
     return this.finish({ name: 'text', contents });
   }
 
-  parseFormat(format, opts) {
-    const startTok = this._t.next();
-    let contents = [];
+  parseFormat(format: Format, opts: ParseFragmentOpts): FragmentNode[] {
+    const startTok = this._t.next() as FormatToken;
+    let contents: (TextNode | CommentNode | TagNode)[] = [];
 
     if (startTok.name === 'underscore') {
       if (this._t.peek().name === 'text') {
-        contents = [this._t.next()];
+        contents = [this._t.next() as TextNode];
       }
     } else {
       contents = this.parseFragment(opts, format);
@@ -303,10 +338,10 @@ module.exports = class Parser {
           this.finish({ name: 'text', contents: startTok.contents + endTok.contents }, pos, end),
         ];
       } else if (format === 'tick') {
-        contents = contents.map(childNode =>
-          childNode.name === 'tag'
-            ? { ...childNode, name: 'text', contents: escapeHtml(childNode.contents) }
-            : childNode
+        contents = contents.map(child =>
+          child.name === 'tag'
+            ? { ...child, name: 'text', contents: escapeHtml(child.contents) }
+            : child
         );
       } else if (format === 'pipe') {
         const ntNode = parseNonTerminal(contents[0].contents);
@@ -338,18 +373,15 @@ module.exports = class Parser {
     return this._posStack ? this._posStack.pop() : -1;
   }
 
-  getPos(node) {
-    if (node === undefined) {
-      node = this._t.peek();
-    }
-    return this._posStack && node.location ? node.location.pos : -1;
+  getPos(tok: Node | Token = this._t.peek()) {
+    return this._posStack && tok.location ? tok.location.pos : -1;
   }
 
-  getEnd(node) {
+  getEnd(node: Node | Token) {
     return this._posStack && node.location ? node.location.end : -1;
   }
 
-  finish(node, pos, end) {
+  finish<T extends Node>(node: T, pos: number | void, end: number | void): T {
     if (pos === undefined) {
       pos = this.popPos();
     }
@@ -357,13 +389,13 @@ module.exports = class Parser {
       end = this.getPos();
     }
     if (this._posStack) {
-      node.location = { pos, end };
+      node.location = { pos: pos as number, end };
     }
     return node;
   }
-};
+}
 
-function isFormatToken(tok) {
+function isFormatToken(tok: Token): tok is FormatToken {
   return (
     tok.name === 'star' ||
     tok.name === 'underscore' ||
@@ -373,24 +405,24 @@ function isFormatToken(tok) {
   );
 }
 
-function isWhitespace(node) {
-  return node.name === 'whitespace' || node.name === 'linebreak';
+function isWhitespace(tok: Token): tok is WhitespaceToken | LinebreakToken {
+  return tok.name === 'whitespace' || tok.name === 'linebreak';
 }
 
-function isAlphaNumeric(c) {
+function isAlphaNumeric(c: string) {
   if (!c) {
     return false;
   }
   return !!c.match(/[\w\d]/);
 }
 
-function isList(tok) {
+function isList(tok: Token): tok is OrderedListToken | UnorderedListToken {
   return tok.name === 'ol' || tok.name === 'ul';
 }
 
 // Backtick can work anywhere, other format tokens have more stringent requirements.
 // This aligns with gmd semantics.
-function isValidStartFormat(prev, cur, next) {
+function isValidStartFormat(prev: NotEOFToken, cur: Token, next: Token) {
   if (cur.name === 'tick') {
     return true;
   }
@@ -398,7 +430,7 @@ function isValidStartFormat(prev, cur, next) {
   return !isAlphaNumeric(prev.contents[prev.contents.length - 1]) && !isWhitespace(next);
 }
 
-function isValidEndFormat(prev, cur) {
+function isValidEndFormat(prev: Token, cur: Token) {
   if (cur.name === 'tick') {
     return true;
   }
@@ -407,7 +439,7 @@ function isValidEndFormat(prev, cur) {
 }
 
 // appends a text token or appends to the last token's contents if the last token is text
-function pushOrJoin(list, node) {
+function pushOrJoin(list: Node[], node: Node) {
   const last = list[list.length - 1];
   if (list.length > 0 && last.name === 'text') {
     last.contents += node.contents;
@@ -417,7 +449,7 @@ function pushOrJoin(list, node) {
 }
 
 // unshifts a text token or prepends to the last token's contents if the first token is text
-function unshiftOrJoin(list, node) {
+function unshiftOrJoin(list: ThingWithContents[], node: ThingWithContents) {
   const first = list[0];
   if (list.length > 0 && first.name === 'text') {
     first.contents = node.contents + first.contents;
@@ -428,7 +460,7 @@ function unshiftOrJoin(list, node) {
 
 // Parsing of non-terminals, eg. |foo[?Param]_opt| or |foo[?Param]?|
 const nonTerminalRe = /^([A-Za-z0-9]+)(?:\[([^\]]+)\])?(_opt|\?)?$/;
-function parseNonTerminal(str) {
+function parseNonTerminal(str: string): PipeNode | null {
   const match = str.match(nonTerminalRe);
 
   if (!match) {
