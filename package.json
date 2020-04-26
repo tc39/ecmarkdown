@@ -7,7 +7,7 @@
     "build": "tsc -p src",
     "prepublish": "npm run build",
     "test": "mocha --reporter dot test/tokenizer.js test/parser.js && node test/run-cases.js",
-    "lint": "eslint src test",
+    "lint": "eslint --ext .js,.ts src test",
     "format": "prettier --write src test"
   },
   "repository": "https://github.com/tc39/ecmarkdown",
@@ -29,6 +29,8 @@
     "escape-html": "^1.0.1"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.29.0",
+    "@typescript-eslint/parser": "^2.29.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",

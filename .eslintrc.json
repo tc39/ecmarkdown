@@ -1,14 +1,17 @@
 {
   "root": true,
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "sourceType": "script",
-    "ecmaVersion": 2020
+    "sourceType": "module",
+    "ecmaVersion": 2018
   },
   "extends": [
     "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
     "prettier"
   ],
   "plugins": [
+    "@typescript-eslint",
     "prettier"
   ],
   "env": {
@@ -64,6 +67,7 @@
       "multi-line"
     ],
     "no-var": "error",
-    "no-unused-vars": "error"
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error"
   }
 }
