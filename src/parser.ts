@@ -1,4 +1,5 @@
 import type {
+  Position,
   Token,
   NotEOFToken,
   Format,
@@ -32,7 +33,7 @@ type ParseFragmentOpts = { oneLine?: boolean; inList?: boolean };
 
 export class Parser {
   _t: Tokenizer;
-  _posStack: number[] | void;
+  _posStack: Position[] | undefined;
 
   constructor(tokenizer: Tokenizer, options?: Options) {
     this._t = tokenizer;
@@ -237,7 +238,7 @@ export class Parser {
   // Text is either text tokens or whitespace tokens
   // list tokens are considered part of text if we're not in a list
   // format tokens are considered part of text if they're not a valid format
-  parseText(opts: ParseFragmentOpts, closingFormatKind: Format | void) {
+  parseText(opts: ParseFragmentOpts, closingFormatKind: Format | undefined) {
     this.pushPos();
     let contents = '';
     let lastRealTok = null;
@@ -309,7 +310,7 @@ export class Parser {
       this._t.next();
     }
 
-    let endLoc = !this._posStack || lastRealTok === null ? undefined : lastRealTok.location.end;
+    let endLoc = !this._posStack || lastRealTok === null ? undefined : lastRealTok.location!.end;
     return this.finish({ name: 'text', contents }, undefined, endLoc);
   }
 
@@ -369,35 +370,30 @@ export class Parser {
 
   pushPos() {
     if (this._posStack) {
-      this._posStack.push(this.getPos());
+      this._posStack.push(this.getPos() as Position);
     }
   }
 
   popPos() {
-    return this._posStack ? this._posStack.pop() : -1;
+    return this._posStack ? this._posStack.pop() : undefined;
   }
 
+  // TODO rename to getStart ?
   getPos(node: Node | Token = this._t.peek()) {
-    return this._posStack && node.location ? node.location.start : -1;
+    return this._posStack && node.location ? node.location.start : undefined;
   }
 
   getEnd(node: Node | Token) {
-    return this._posStack && node.location ? node.location.end : -1;
+    return this._posStack && node.location ? node.location.end : undefined;
   }
 
-  finish<T extends Node>(node: T, start: number | void, end: number | void): T {
+  finish<T extends Node>(node: T, start?: Position, end?: Position): T {
     if (this._posStack) {
-      node.location = { start, end };
-      if (start === undefined) {
-        start = this.popPos();
-      }
-      if (end === undefined) {
-        end =
-          this._t.previous === undefined
-            ? { line: 1, column: 0, offset: 0 }
-            : this._t.previous.location.end;
-      }
-      node.location = { start, end };
+      let actualStart: Position = start ?? (this.popPos() as Position);
+      let actualEnd: Position = end ?? (this._t.previous === undefined
+        ? { line: 1, column: 0, offset: 0 }
+        : this._t.previous.location!.end);
+      node.location = { start: actualStart, end: actualEnd };
     }
     return node;
   }
