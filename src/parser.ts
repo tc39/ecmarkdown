@@ -392,7 +392,7 @@ export class Parser {
       let actualStart: Position = start ?? (this.popPos() as Position);
       let actualEnd: Position = end ?? (this._t.previous === undefined
         ? { line: 1, column: 0, offset: 0 }
-        : this._t.previous.location!.end);
+        : { ...this._t.previous.location!.end });
       node.location = { start: actualStart, end: actualEnd };
     }
     return node;
