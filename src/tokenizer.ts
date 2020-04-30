@@ -1,4 +1,6 @@
-'use strict';
+import type { Token } from './node-types';
+
+import type { Options } from './ecmarkdown';
 
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+[\w]+(\s*=\s*("[^"]*"|'[^']*'|[^><"'=``]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
@@ -92,16 +94,26 @@ const opaqueTags = new Set([
   'style',
 ]);
 
-module.exports = class Tokenizer {
-  constructor(str, options) {
+export class Tokenizer {
+  str: string;
+  _trackPositions: boolean;
+  _eof: boolean;
+  pos: number;
+  queue: Token[];
+  _newline: boolean;
+  _lookahead: Token[];
+  previous: Token | void;
+
+  constructor(str: string, options?: Options) {
     this.str = str;
-    this._trackPositions = options && options.trackPositions;
+    this._trackPositions = !!(options && options.trackPositions);
     this._eof = false;
     this.pos = 0;
     this.queue = []; // stores tokens when we peek so we don't have to rematch
 
     this._newline = true;
     this._lookahead = [];
+    this.previous = undefined;
   }
 
   scanDigits() {
@@ -194,7 +206,7 @@ module.exports = class Tokenizer {
     return this.str.slice(start, this.pos);
   }
 
-  scanToEndTag(endTag) {
+  scanToEndTag(endTag: string) {
     let start = this.pos;
     let len = this.str.length;
     while (this.pos < len) {
@@ -413,12 +425,12 @@ module.exports = class Tokenizer {
     }
   }
 
-  enqueueLookahead(tok, pos) {
+  enqueueLookahead(tok: Token, pos: number) {
     this.locate(tok, pos);
     this._lookahead.push(tok);
   }
 
-  enqueue(tok, pos) {
+  enqueue(tok: Token, pos: number) {
     this.locate(tok, pos);
     this.queue.push(tok);
 
@@ -459,21 +471,21 @@ module.exports = class Tokenizer {
     return this.previous;
   }
 
-  locate(tok, pos) {
+  locate(tok: Token, pos: number) {
     if (this._trackPositions) {
       tok.location = { pos, end: this.pos };
     }
   }
-};
+}
 
-function isWhitespace(chr) {
+function isWhitespace(chr: string) {
   return chr === ' ' || chr === '\t';
 }
 
-function isChars(chr) {
+function isChars(chr: string) {
   return !isFormat(chr) && chr !== '\n' && chr !== ' ' && chr !== '\t';
 }
 
-function isFormat(chr) {
+function isFormat(chr: string) {
   return chr === '*' || chr === '_' || chr === '`' || chr === '<' || chr === '|' || chr === '~';
 }
