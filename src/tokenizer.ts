@@ -271,10 +271,7 @@ export class Tokenizer {
     while (true) {
       if (this.pos === str.length) {
         this._eof = true;
-        this.enqueue(
-          { name: 'EOF', done: true },
-          { offset: this.pos, line: this.line, column: this.column }
-        );
+        this.enqueue({ name: 'EOF', done: true }, this.getLocation());
         return;
       }
 
@@ -500,11 +497,7 @@ export class Tokenizer {
       }
       tok.location = {
         start: startPos,
-        end: {
-          offset: this.pos,
-          line: this.line,
-          column: this.column,
-        },
+        end: this.getLocation(),
       };
     }
   }
