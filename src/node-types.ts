@@ -1,13 +1,13 @@
 export type Position = {
-  line: number,
-  column: number,
-  offset: number,
-}
+  line: number;
+  column: number;
+  offset: number;
+};
 
 export type LocationRange = {
-  start: Position,
-  end: Position,
-}
+  start: Position;
+  end: Position;
+};
 
 export type EOFToken = {
   name: 'EOF';

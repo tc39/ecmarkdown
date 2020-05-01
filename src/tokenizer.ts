@@ -1,4 +1,4 @@
-import type { Token, Position, LocationRange } from './node-types';
+import type { Token, Position } from './node-types';
 
 import type { Options } from './ecmarkdown';
 
@@ -271,7 +271,10 @@ export class Tokenizer {
     while (true) {
       if (this.pos === str.length) {
         this._eof = true;
-        this.enqueue({ name: 'EOF', done: true }, { offset: this.pos, line: this.line, column: this.column });
+        this.enqueue(
+          { name: 'EOF', done: true },
+          { offset: this.pos, line: this.line, column: this.column }
+        );
         return;
       }
 

@@ -390,9 +390,11 @@ export class Parser {
   finish<T extends Node>(node: T, start?: Position, end?: Position): T {
     if (this._posStack) {
       let actualStart: Position = start ?? (this.popPos() as Position);
-      let actualEnd: Position = end ?? (this._t.previous === undefined
-        ? { line: 1, column: 0, offset: 0 }
-        : { ...this._t.previous.location!.end });
+      let actualEnd: Position =
+        end ??
+        (this._t.previous === undefined
+          ? { line: 1, column: 0, offset: 0 }
+          : { ...this._t.previous.location!.end });
       node.location = { start: actualStart, end: actualEnd };
     }
     return node;
