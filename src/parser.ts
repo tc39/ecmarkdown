@@ -310,7 +310,9 @@ export class Parser {
       this._t.next();
     }
 
-    let endLoc = !this._posStack || lastRealTok === null ? undefined : lastRealTok.location!.end;
+    // @ts-ignore this should be `location!.end`, but we need to wait for TS to release a bugfix before we can do that
+    // see https://github.com/microsoft/TypeScript/pull/36539
+    let endLoc =  this._posStack && lastRealTok?.location.end;
     return this.finish({ name: 'text', contents }, undefined, endLoc);
   }
 
@@ -370,26 +372,26 @@ export class Parser {
 
   pushPos() {
     if (this._posStack) {
-      this._posStack.push(this.getPos() as Position);
+      this._posStack.push(this.getPos()!);
     }
   }
 
   popPos() {
-    return this._posStack ? this._posStack.pop() : undefined;
+    return this._posStack?.pop();
   }
 
   // TODO rename to getStart ?
   getPos(node: Node | Token = this._t.peek()) {
-    return this._posStack && node.location ? node.location.start : undefined;
+    return this._posStack && node.location?.start;
   }
 
   getEnd(node: Node | Token) {
-    return this._posStack && node.location ? node.location.end : undefined;
+    return this._posStack && node.location?.end;
   }
 
   finish<T extends Node>(node: T, start?: Position, end?: Position): T {
     if (this._posStack) {
-      let actualStart: Position = start ?? (this.popPos() as Position);
+      let actualStart: Position = start ?? this.popPos()!;
       let actualEnd: Position =
         end ??
         (this._t.previous === undefined

@@ -429,7 +429,7 @@ export class Tokenizer {
     }
   }
 
-  getLocation() {
+  getLocation(): Position {
     return {
       offset: this.pos,
       line: this.line,
