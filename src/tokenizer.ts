@@ -1,4 +1,4 @@
-import type { Token } from './node-types';
+import type { Token, Position } from './node-types';
 
 import type { Options } from './ecmarkdown';
 
@@ -102,13 +102,17 @@ export class Tokenizer {
   queue: Token[];
   _newline: boolean;
   _lookahead: Token[];
-  previous: Token | void;
+  previous: Token | undefined;
+  line: number;
+  column: number;
 
   constructor(str: string, options?: Options) {
     this.str = str;
     this._trackPositions = !!(options && options.trackPositions);
     this._eof = false;
     this.pos = 0;
+    this.line = 1;
+    this.column = 0;
     this.queue = []; // stores tokens when we peek so we don't have to rematch
 
     this._newline = true;
@@ -131,6 +135,7 @@ export class Tokenizer {
 
     while (this.pos < this.str.length && isWhitespace(this.str[this.pos])) {
       this.pos++;
+      this.column++;
     }
 
     return this.str.slice(startPos, this.pos);
@@ -159,7 +164,7 @@ export class Tokenizer {
     let chr;
 
     while (this.pos < len) {
-      const start = this.pos;
+      const start = this.getLocation();
       chr = this.str[this.pos];
 
       if (chr === '\\') {
@@ -266,7 +271,7 @@ export class Tokenizer {
     while (true) {
       if (this.pos === str.length) {
         this._eof = true;
-        this.enqueue({ name: 'EOF', done: true }, this.pos);
+        this.enqueue({ name: 'EOF', done: true }, this.getLocation());
         return;
       }
 
@@ -274,7 +279,7 @@ export class Tokenizer {
         this._newline = false;
 
         const ws = this.scanWhitespace();
-        const start = this.pos;
+        const start = this.getLocation();
 
         if (this.pos >= str.length) {
           if (ws.length > 0) {
@@ -332,17 +337,16 @@ export class Tokenizer {
             this.pos++;
           }
 
-          const level = this.pos - start;
+          const level = this.pos - start.offset;
           if (level > 6 || !isWhitespace(this.str[this.pos])) {
+            // rescan with newline  false
+            this.pos = start.offset;
             if (ws.length > 0) {
               this.enqueue({ name: 'whitespace', contents: ws }, start);
             }
-
-            // rescan with newline  false
-            this.pos = start;
           } else {
             this.scanWhitespace();
-            const contents = ws + this.str.slice(start, this.pos);
+            const contents = ws + this.str.slice(start.offset, this.pos);
             this.enqueue({ name: 'header', level, contents }, start);
             return;
           }
@@ -352,7 +356,7 @@ export class Tokenizer {
         }
       }
 
-      const start = this.pos;
+      const start = this.getLocation();
       const chr = str[this.pos];
 
       switch (chr) {
@@ -425,12 +429,20 @@ export class Tokenizer {
     }
   }
 
-  enqueueLookahead(tok: Token, pos: number) {
+  getLocation(): Position {
+    return {
+      offset: this.pos,
+      line: this.line,
+      column: this.column,
+    };
+  }
+
+  enqueueLookahead(tok: Token, pos: Position) {
     this.locate(tok, pos);
     this._lookahead.push(tok);
   }
 
-  enqueue(tok: Token, pos: number) {
+  enqueue(tok: Token, pos: Position) {
     this.locate(tok, pos);
     this.queue.push(tok);
 
@@ -471,9 +483,22 @@ export class Tokenizer {
     return this.previous;
   }
 
-  locate(tok: Token, pos: number) {
+  locate(tok: Token, startPos: Position) {
     if (this._trackPositions) {
-      tok.location = { pos, end: this.pos };
+      if (tok.name === 'linebreak') {
+        this.column = 0;
+        ++this.line;
+      } else if (tok.name === 'parabreak') {
+        this.column = 0;
+        this.line += 2;
+      } else {
+        let width = this.pos - startPos.offset;
+        this.column += width;
+      }
+      tok.location = {
+        start: startPos,
+        end: this.getLocation(),
+      };
     }
   }
 }

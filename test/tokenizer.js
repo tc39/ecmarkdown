@@ -431,7 +431,13 @@ describe('backslash escapes', function () {
 describe('Tokenizer', function () {
   it('tracks positions', function () {
     const t = new Tokenizer('1. foo', { trackPositions: true });
-    assertTok(t.next(), 'ol', '1. ', { pos: 0, end: 3 });
-    assertTok(t.next(), 'text', 'foo', { pos: 3, end: 6 });
+    assertTok(t.next(), 'ol', '1. ', {
+      start: { line: 1, column: 0, offset: 0 },
+      end: { line: 1, column: 3, offset: 3 },
+    });
+    assertTok(t.next(), 'text', 'foo', {
+      start: { line: 1, column: 3, offset: 3 },
+      end: { line: 1, column: 6, offset: 6 },
+    });
   });
 });
