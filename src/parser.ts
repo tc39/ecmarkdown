@@ -312,7 +312,7 @@ export class Parser {
 
     // @ts-ignore this should be `location!.end`, but we need to wait for TS to release a bugfix before we can do that
     // see https://github.com/microsoft/TypeScript/pull/36539
-    let endLoc =  this._posStack && lastRealTok?.location.end;
+    let endLoc = this._posStack && lastRealTok?.location.end;
     return this.finish({ name: 'text', contents }, undefined, endLoc);
   }
 
