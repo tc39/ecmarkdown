@@ -11,12 +11,7 @@ describe('Parser', function () {
   it('tracks positions', function () {
     const tokenizer = new Tokenizer('1. a\n2. b', { trackPositions: true });
     const parser = new Parser(tokenizer, { trackPositions: true });
-    const document = parser.parseDocument();
-    assertNode(document, 'document', {
-      start: { line: 1, column: 0, offset: 0 },
-      end: { line: 2, column: 4, offset: 9 },
-    });
-    const algorithm = document.contents[0];
+    const algorithm = parser.parseAlgorithm();
     assertNode(algorithm, 'algorithm', {
       start: { line: 1, column: 0, offset: 0 },
       end: { line: 2, column: 4, offset: 9 },

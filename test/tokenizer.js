@@ -228,32 +228,12 @@ describe('Token:', function () {
     });
   });
 
-  describe('Headers', function () {
-    it('must be followed by whitespace', function () {
-      const t = new Tokenizer('#not-header');
-      assertTok(t.next(), 'text', '#not-header');
-      assertTok(t.next(), 'EOF');
-    });
-
-    it('can be up to 6 chars', function () {
-      const t1 = new Tokenizer('###### h6');
-      assertTok(t1.next(), 'header', '###### ');
-      assertTok(t1.next(), 'text', 'h6');
-      assertTok(t1.next(), 'EOF');
-
-      const t2 = new Tokenizer('####### h7?');
-      assertTok(t2.next(), 'text', '#######');
-      assertTok(t2.next(), 'whitespace', ' ');
-      assertTok(t2.next(), 'text', 'h7?');
-      assertTok(t2.next(), 'EOF');
-    });
-  });
-
   describe('HTML comments', function () {
     // this appears to be a deviation from GMD but seems like a good idea.
     it('allows block comments', function () {
       const t = new Tokenizer('<!--\n-->foo');
-      assertTok(t.next(), 'blockTag', '<!--\n-->foo');
+      assertTok(t.next(), 'comment', '<!--\n-->');
+      assertTok(t.next(), 'text', 'foo');
     });
 
     it('can follow characters', function () {
@@ -281,16 +261,17 @@ describe('Token:', function () {
 
     it('handles only block tags', function () {
       const t = new Tokenizer('<emu-clause>');
-      assertTok(t.next(), 'blockTag', '<emu-clause>');
+      assertTok(t.next(), 'tag', '<emu-clause>');
       assertTok(t.next(), 'EOF');
     });
   });
 
   describe('HTML tags', function () {
-    // this appears to be a deviation from GMD but seems like a good idea.
     it('allows linebreak', function () {
       const t = new Tokenizer('<p\n>xxx\nfoo</p>');
-      assertTok(t.next(), 'blockTag', '<p\n>xxx\n');
+      assertTok(t.next(), 'tag', '<p\n>');
+      assertTok(t.next(), 'text', 'xxx');
+      assertTok(t.next(), 'linebreak', '\n');
       assertTok(t.next(), 'text', 'foo');
       assertTok(t.next(), 'tag', '</p>');
     });
@@ -348,23 +329,22 @@ describe('Token:', function () {
     });
 
     it('understands opaque tags', function () {
-      const t = new Tokenizer('# Header\n<emu-grammar>\n`foo`\n</emu-syntax>');
-      assertTok(t.next(), 'header', '# ');
-      assertTok(t.next(), 'text', 'Header');
+      const t = new Tokenizer('bar\n<emu-grammar>\n`foo`\n</emu-syntax>');
+      assertTok(t.next(), 'text', 'bar');
       assertTok(t.next(), 'linebreak', '\n');
       assertTok(t.next(), 'opaqueTag', '<emu-grammar>\n`foo`\n</emu-syntax>');
       assertTok(t.next(), 'EOF');
     });
 
     it('understands block tags', function () {
-      const t = new Tokenizer('# Header\n<emu-note>\nfoo\n</emu-note>');
-      assertTok(t.next(), 'header', '# ');
-      assertTok(t.next(), 'text', 'Header');
+      const t = new Tokenizer('bar\n<emu-note>\nfoo\n</emu-note>');
+      assertTok(t.next(), 'text', 'bar');
       assertTok(t.next(), 'linebreak', '\n');
-      assertTok(t.next(), 'blockTag', '<emu-note>\n');
+      assertTok(t.next(), 'tag', '<emu-note>');
+      assertTok(t.next(), 'linebreak', '\n');
       assertTok(t.next(), 'text', 'foo');
       assertTok(t.next(), 'linebreak', '\n');
-      assertTok(t.next(), 'blockTag', '</emu-note>');
+      assertTok(t.next(), 'tag', '</emu-note>');
     });
   });
 });

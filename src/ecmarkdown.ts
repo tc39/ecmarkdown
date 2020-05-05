@@ -5,8 +5,11 @@ export type Options = {
   trackPositions?: boolean;
 };
 
-let parse = Parser.parse;
+let parseFragment = Parser.parseFragment;
+let parseAlgorithm = Parser.parseAlgorithm;
 let emit = Emitter.emit;
-let process = (str: string, options: Options) => Emitter.emit(Parser.parse(str, options));
+let fragment = (str: string, options?: Options) => Emitter.emit(Parser.parseFragment(str, options));
+let algorithm = (str: string, options?: Options) =>
+  Emitter.emit(Parser.parseAlgorithm(str, options));
 
-export { parse, emit, process };
+export { parseFragment, parseAlgorithm, emit, fragment, algorithm };
