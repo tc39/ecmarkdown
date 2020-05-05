@@ -236,6 +236,7 @@ export class Tokenizer {
 
     // TODO: handle directives like <! doctype...>
     if (
+      this.pos + 1 < this.str.length &&
       this.str[this.pos + 1] !== '/' &&
       this.str[this.pos + 1] !== '!' &&
       !this.str[this.pos + 1].match(/\w/)
