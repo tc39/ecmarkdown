@@ -5,16 +5,12 @@ import type {
   TickNode,
   TextNode,
   TagNode,
-  NonListNode,
   UnderscoreNode,
   StarNode,
   ListItemNode,
   OrderedListNode,
   UnorderedListNode,
-  HeaderNode,
   AlgorithmNode,
-  DocumentNode,
-  BlockTagNode,
   OpaqueTagNode,
   CommentNode,
 } from './node-types';
@@ -26,13 +22,13 @@ export class Emitter {
     this.str = '';
   }
 
-  emit(node: Node) {
+  emit(node: Node | Node[]) {
     this.emitNode(node);
 
     return this.str;
   }
 
-  static emit(doc: Node) {
+  static emit(doc: Node | Node[]) {
     const emitter = new Emitter();
     return emitter.emit(doc);
   }
@@ -44,9 +40,6 @@ export class Emitter {
     }
 
     switch (node.name) {
-      case 'document':
-        this.emitDocument(node);
-        break;
       case 'algorithm':
         this.emitAlgorithm(node);
         break;
@@ -77,17 +70,10 @@ export class Emitter {
       case 'tilde':
         this.emitTilde(node);
         break;
-      case 'non-list':
-        this.emitParagraph(node);
-        break;
       case 'comment':
       case 'tag':
-      case 'blockTag':
       case 'opaqueTag':
         this.emitTag(node);
-        break;
-      case 'header':
-        this.emitHeader(node);
         break;
       default:
         // @ts-ignore
@@ -95,18 +81,8 @@ export class Emitter {
     }
   }
 
-  emitDocument(document: DocumentNode) {
-    document.contents.forEach(p => this.emitNode(p));
-  }
-
   emitAlgorithm(algorithm: AlgorithmNode) {
-    this.str += '<emu-alg>';
     this.emitOrderedList(algorithm.contents);
-    this.str += '</emu-alg>';
-  }
-
-  emitHeader(header: HeaderNode) {
-    this.wrapFragment('h' + header.level, header.contents);
   }
 
   emitOrderedList(ol: OrderedListNode) {
@@ -139,13 +115,7 @@ export class Emitter {
     this.wrapFragment('var', node.contents);
   }
 
-  emitParagraph(p: NonListNode) {
-    this.str += '<p>';
-    this.emitFragment(p.contents);
-    this.str += '</p>';
-  }
-
-  emitTag(tag: BlockTagNode | OpaqueTagNode | CommentNode | TagNode) {
+  emitTag(tag: OpaqueTagNode | CommentNode | TagNode) {
     this.str += tag.contents;
   }
 

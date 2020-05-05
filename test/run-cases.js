@@ -20,7 +20,10 @@ for (let file of fs.readdirSync(cases)) {
       let snapshotFile = path.resolve(cases, file.replace(/ecmarkdown$/, 'html'));
 
       let input = fs.readFileSync(path.resolve(cases, file), 'utf8');
-      let rawOutput = ecmarkdown.process(input, { trackPositions: true });
+      let processor = file.endsWith('.fragment.ecmarkdown')
+        ? ecmarkdown.fragment
+        : ecmarkdown.algorithm;
+      let rawOutput = processor(input, { trackPositions: true });
       let output = beautify(rawOutput);
       let existing = fs.existsSync(snapshotFile) ? fs.readFileSync(snapshotFile, 'utf8') : null;
       if (shouldUpdate) {

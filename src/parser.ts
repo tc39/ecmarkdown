@@ -13,6 +13,7 @@ import type {
   TextNode,
   CommentNode,
   TagNode,
+  OpaqueTagNode,
   FragmentNode,
   ListItemContentNode,
   OrderedListNode,
@@ -29,7 +30,7 @@ import { Tokenizer } from './tokenizer';
 
 type ThingWithContents = Exclude<Node, PipeNode> | NotEOFToken;
 
-type ParseFragmentOpts = { oneLine?: boolean; inList?: boolean };
+type ParseFragmentOpts = { inList?: boolean };
 
 export class Parser {
   _t: Tokenizer;
@@ -40,19 +41,21 @@ export class Parser {
     this._posStack = options && options.trackPositions ? [] : undefined;
   }
 
-  static parse(str: string, options?: Options) {
+  static parseAlgorithm(str: string, options?: Options) {
     let tokenizer = new Tokenizer(str, options);
-    return new Parser(tokenizer, options).parseDocument();
+    return new Parser(tokenizer, options).parseAlgorithm();
   }
 
-  parseDocument() {
-    this.pushPos();
-    return this.finish({ name: 'document', contents: this.parseParagraphs() });
+  static parseFragment(str: string, options?: Options) {
+    let tokenizer = new Tokenizer(str, options);
+    let out = new Parser(tokenizer, options).parseFragment({});
+    if (tokenizer.peek().name !== 'EOF') {
+      throw new Error('expecting EOF, got ' + tokenizer.peek().name);
+    }
+    return out;
   }
 
-  parseParagraphs() {
-    const graphs = [];
-
+  parseAlgorithm() {
     while (true) {
       let tok = this._t.peek();
       if (tok.name === 'EOF') {
@@ -64,56 +67,17 @@ export class Parser {
         this._t.next();
         continue;
       }
-
-      graphs.push(this.parseParagraph());
-
-      tok = this._t.peek();
-      if (tok.name === 'parabreak') {
-        this._t.next();
-      }
+      break;
     }
-
-    return graphs;
-  }
-
-  parseParagraph() {
-    let tok = this._t.peek();
-
-    // consume and ignore any leading linebreaks
-    while (isWhitespace(tok)) {
-      this._t.next();
-      tok = this._t.peek();
+    if (this._t.peek().name !== 'ol') {
+      throw new Error('expecting ordered list, got ' + this._t.peek().name);
     }
-
-    if (tok.name === 'header') {
-      this.pushPos();
-      this._t.next();
-      return this.finish({
-        name: 'header',
-        level: tok.level,
-        contents: this.parseFragment({ oneLine: true }),
-      });
-    }
-    if (tok.name === 'blockTag') {
-      this.pushPos();
-      this._t.next();
-      return this.finish({ name: 'blockTag', contents: tok.contents });
-    } else if (tok.name === 'opaqueTag') {
-      this.pushPos();
-      this._t.next();
-      return this.finish({ name: 'opaqueTag', contents: tok.contents });
-    } else if (tok.name === 'ol') {
-      return this.parseAlgorithm();
-    } else if (tok.name === 'ul') {
-      return this.parseList();
-    } else {
-      return this.parseNonList();
-    }
-  }
-
-  parseAlgorithm() {
     this.pushPos();
-    return this.finish({ name: 'algorithm', contents: this.parseList() as OrderedListNode });
+    let ret = this.finish({ name: 'algorithm', contents: this.parseList() as OrderedListNode });
+    if (this._t.peek().name !== 'EOF') {
+      throw new Error('expecting EOF, got ' + this._t.peek().name);
+    }
+    return ret;
   }
 
   parseList() {
@@ -148,11 +112,6 @@ export class Parser {
     return this.finish(node);
   }
 
-  parseNonList() {
-    this.pushPos();
-    return this.finish({ name: 'non-list', contents: this.parseFragment({}) });
-  }
-
   parseListItem(indent: number) {
     this.pushPos();
     // consume list token
@@ -185,22 +144,12 @@ export class Parser {
     while (true) {
       const tok = this._t.peek();
 
-      if (
-        tok.name === 'opaqueTag' ||
-        tok.name === 'blockTag' ||
-        tok.name === 'header' ||
-        tok.name === 'EOF'
-      ) {
+      if (tok.name === 'EOF') {
         break;
       } else if (tok.name === 'parabreak') {
         break;
       } else if (tok.name === 'text' || tok.name === 'whitespace' || tok.name === 'linebreak') {
-        if (tok.name === 'linebreak' && opts.oneLine) {
-          this._t.next();
-          break;
-        } else {
-          frag.push(this.parseText(opts, closingFormatKind));
-        }
+        frag.push(this.parseText(opts, closingFormatKind));
       } else if (isFormatToken(tok)) {
         if (closingFormatKind !== undefined) {
           if (tok.name === closingFormatKind) {
@@ -215,8 +164,8 @@ export class Parser {
           // valid format
           frag = frag.concat(this.parseFormat(tok.name, opts));
         }
-      } else if (tok.name === 'comment' || tok.name === 'tag') {
-        frag.push(tok as CommentNode | TagNode); // Why can't TS infer this type?
+      } else if (tok.name === 'comment' || tok.name === 'tag' || tok.name === 'opaqueTag') {
+        frag.push(tok as CommentNode | TagNode | OpaqueTagNode); // Why can't TS infer this type?
         this._t.next();
       } else if (isList(tok)) {
         if (opts.inList) {
@@ -247,10 +196,6 @@ export class Parser {
       let tok = this._t.peek();
       let firstTok = tok;
 
-      if (tok.name === 'linebreak' && opts.oneLine) {
-        break;
-      }
-
       let wsChunk = '';
       while (isWhitespace(tok)) {
         wsChunk += tok.contents;
@@ -258,16 +203,19 @@ export class Parser {
         tok = this._t.peek();
       }
 
-      if (
-        tok.name === 'EOF' ||
-        tok.name === 'parabreak' ||
-        tok.name === 'header' ||
-        tok.name === 'opaqueTag' ||
-        tok.name === 'blockTag' ||
-        (opts.inList && isList(tok))
-      ) {
+      if (tok.name === 'EOF' || tok.name === 'parabreak' || (opts.inList && isList(tok))) {
+        // In lists we don't need to bother representing trailing whitespace
+        if (!opts.inList) {
+          contents += wsChunk;
+        }
+
         break;
       }
+      if (tok.name === 'opaqueTag') {
+        contents += wsChunk;
+        break;
+      }
+
       lastRealTok = firstTok;
 
       contents += wsChunk;
@@ -294,12 +242,13 @@ export class Parser {
         }
       }
 
+      //  TODO why is this not with the earlier break?
       if (tok.name === 'tag') {
         break;
       }
 
       if (tok.name === 'text' || isWhitespace(tok)) {
-        contents += escapeHtml(tok.contents);
+        contents += tok.contents;
         this._t.next();
         continue;
       }

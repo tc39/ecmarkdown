@@ -5,94 +5,8 @@ import type { Options } from './ecmarkdown';
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+[\w]+(\s*=\s*("[^"]*"|'[^']*'|[^><"'=``]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
 const digitRegexp = /\d/;
-const blockTags = new Set([
-  'emu-note',
-  'emu-clause',
-  'emu-intro',
-  'emu-annex',
-  'emu-biblio',
-  'emu-import',
-  'emu-table',
-  'emu-figure',
-  'emu-example',
-  'emu-see-also-para',
-  'emu-alg',
-  'doctype',
-  // following from commonmark (moved pre and script to opaque)
-  'address',
-  'article',
-  'aside',
-  'base',
-  'basefont',
-  'blockquote',
-  'body',
-  'caption',
-  'center',
-  'col',
-  'colgroup',
-  'dd',
-  'details',
-  'dialog',
-  'dir',
-  'div',
-  'dl',
-  'dt',
-  'fieldset',
-  'figcaption',
-  'figure',
-  'footer',
-  'form',
-  'frame',
-  'frameset',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'head',
-  'header',
-  'hr',
-  'html',
-  'legend',
-  'li',
-  'link',
-  'main',
-  'menu',
-  'menuitem',
-  'meta',
-  'nav',
-  'noframes',
-  'ol',
-  'optgroup',
-  'option',
-  'p',
-  'param',
-  'section',
-  'source',
-  'title',
-  'summary',
-  'table',
-  'tbody',
-  'td',
-  'tfoot',
-  'th',
-  'thead',
-  'title',
-  'tr',
-  'track',
-  'ul',
-]);
 
-const opaqueTags = new Set([
-  'emu-grammar',
-  'emu-production',
-  'emu-eqn',
-  'pre',
-  'code',
-  'script',
-  'style',
-]);
+const opaqueTags = new Set(['emu-grammar', 'emu-production', 'pre', 'code', 'script', 'style']);
 
 export class Tokenizer {
   str: string;
@@ -176,7 +90,12 @@ export class Tokenizer {
         const tag = this.tryScanTag();
 
         if (tag) {
-          this.enqueueLookahead({ name: 'tag', contents: tag[0] }, start);
+          if (opaqueTags.has(tag[1]) && tag[2] !== '/') {
+            const rest = this.scanToEndTag(tag[1]);
+            this.enqueueLookahead({ name: 'opaqueTag', contents: tag[0] + rest }, start);
+          } else {
+            this.enqueueLookahead({ name: 'tag', contents: tag[0] }, start);
+          }
           break;
         }
 
@@ -308,11 +227,7 @@ export class Tokenizer {
           const tag = this.tryScanTag();
 
           if (tag) {
-            if (blockTags.has(tag[1])) {
-              const rest = this.scanToEOL();
-              this.enqueue({ name: 'blockTag', contents: ws + tag[0] + rest }, start);
-              this._newline = true;
-            } else if (opaqueTags.has(tag[1]) && tag[2] !== '/') {
+            if (opaqueTags.has(tag[1]) && tag[2] !== '/') {
               const rest = this.scanToEndTag(tag[1]);
               this.enqueue({ name: 'opaqueTag', contents: ws + tag[0] + rest }, start);
             } else {
@@ -328,27 +243,8 @@ export class Tokenizer {
           const comment = this.tryScanComment();
 
           if (comment) {
-            const rest = this.scanToEOL();
-            this.enqueue({ name: 'blockTag', contents: ws + comment + rest }, start);
-            this._newline = true;
-            return;
-          }
-        } else if (str[this.pos] === '#') {
-          while (this.pos < this.str.length && str[this.pos] === '#') {
-            this.pos++;
-          }
-
-          const level = this.pos - start.offset;
-          if (level > 6 || !isWhitespace(this.str[this.pos])) {
-            // rescan with newline  false
-            this.pos = start.offset;
-            if (ws.length > 0) {
-              this.enqueue({ name: 'whitespace', contents: ws }, start);
-            }
-          } else {
-            this.scanWhitespace();
-            const contents = ws + this.str.slice(start.offset, this.pos);
-            this.enqueue({ name: 'header', level, contents }, start);
+            this.enqueue({ name: 'comment', contents: ws + comment }, start);
+            // this._newline = true;
             return;
           }
         } else if (ws.length > 0) {
@@ -413,7 +309,12 @@ export class Tokenizer {
             } else {
               const tag = this.tryScanTag();
               if (tag) {
-                this.enqueue({ name: 'tag', contents: tag[0] }, start);
+                if (opaqueTags.has(tag[1]) && tag[2] !== '/') {
+                  const rest = this.scanToEndTag(tag[1]);
+                  this.enqueue({ name: 'opaqueTag', contents: tag[0] + rest }, start);
+                } else {
+                  this.enqueue({ name: 'tag', contents: tag[0] }, start);
+                }
                 return;
               }
             }

@@ -53,12 +53,6 @@ export type CommentToken = {
   location?: LocationRange;
 };
 
-export type BlockTagToken = {
-  name: 'blockTag';
-  contents: string;
-  location?: LocationRange;
-};
-
 export type OpaqueTagToken = {
   name: 'opaqueTag';
   contents: string;
@@ -83,13 +77,6 @@ export type OrderedListToken = {
   location?: LocationRange;
 };
 
-export type HeaderToken = {
-  name: 'header';
-  level: number;
-  contents: string;
-  location?: LocationRange;
-};
-
 export type Token =
   | EOFToken
   | FormatToken
@@ -101,30 +88,9 @@ export type Token =
   | TagToken
   | UnorderedListToken
   | OrderedListToken
-  | HeaderToken
-  | BlockTagToken
   | OpaqueTagToken;
 
 export type NotEOFToken = Exclude<Token, EOFToken>;
-
-export type DocumentNode = {
-  name: 'document';
-  contents: ParagraphNode[];
-  location?: LocationRange;
-};
-
-export type HeaderNode = {
-  name: 'header';
-  level: number;
-  contents: FragmentNode[];
-  location?: LocationRange;
-};
-
-export type BlockTagNode = {
-  name: 'blockTag';
-  contents: string;
-  location?: LocationRange;
-};
 
 export type OpaqueTagNode = {
   name: 'opaqueTag';
@@ -212,30 +178,15 @@ export type ListItemNode = {
   location?: LocationRange;
 };
 
-export type NonListNode = {
-  name: 'non-list';
-  contents: FragmentNode[];
-  location?: LocationRange;
-};
-
 export type ListItemContentNode = FragmentNode | ListNode;
 
-export type FragmentNode = TextNode | FormatNode | CommentNode | TagNode;
+export type FragmentNode = TextNode | FormatNode | CommentNode | TagNode | OpaqueTagNode;
 
 export type ListNode = UnorderedListNode | OrderedListNode;
 
-export type ParagraphNode =
-  | HeaderNode
-  | BlockTagNode
-  | OpaqueTagNode
-  | AlgorithmNode
-  | NonListNode
-  | ListNode;
+export type ParagraphNode = OpaqueTagNode | AlgorithmNode | ListNode;
 
 export type Node =
-  | DocumentNode
-  | HeaderNode
-  | BlockTagNode
   | OpaqueTagNode
   | TagNode
   | CommentNode
@@ -248,5 +199,4 @@ export type Node =
   | PipeNode
   | UnorderedListNode
   | OrderedListNode
-  | ListItemNode
-  | NonListNode;
+  | ListItemNode;
