@@ -13,8 +13,8 @@ const childKeys = {
   pipe: [],
   ul: ['contents'],
   ol: ['contents'],
-  'ordered-list-item': ['contents'],
-  'unordered-list-item': ['contents'],
+  'ordered-list-item': ['contents', 'sublist'],
+  'unordered-list-item': ['contents', 'sublist'],
 };
 
 export type Observer = {
@@ -27,7 +27,10 @@ export function visit(node: Node, observer: Observer) {
   // @ts-ignore
   for (let childKey of childKeys[node.name]) {
     // @ts-ignore
-    let child: Node | Node[] = node[childKey];
+    let child: Node | Node[] | null = node[childKey];
+    if (child == null) {
+      continue;
+    }
     if (Array.isArray(child)) {
       for (let c of child) {
         visit(c, observer);

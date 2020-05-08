@@ -15,7 +15,7 @@ import type {
   TagNode,
   OpaqueTagNode,
   FragmentNode,
-  ListItemContentNode,
+  ListNode,
   OrderedListNode,
   UnorderedListNode,
   OrderedListItemNode,
@@ -86,7 +86,7 @@ export class Parser {
     this.pushPos();
     const startTok = this._t.peek() as OrderedListToken | UnorderedListToken;
 
-    let node: OrderedListNode | UnorderedListNode;
+    let node: ListNode;
     if (startTok.name === 'ul') {
       const match = startTok.contents.match(/(\s*)\* /);
       node = { name: 'ul', indent: match![1].length, contents: [] };
@@ -117,27 +117,28 @@ export class Parser {
 
   parseListItem(kind: 'ol', indent: number): OrderedListItemNode;
   parseListItem(kind: 'ul', indent: number): UnorderedListItemNode;
-  parseListItem(kind: 'ol' | 'ul', indent: number) {
+  parseListItem(kind: 'ol' | 'ul', indent: number): OrderedListItemNode | UnorderedListItemNode {
     this.pushPos();
     // consume list token
     this._t.next();
 
-    const contents: ListItemContentNode[] = this.parseFragment({ inList: true });
+    const contents: FragmentNode[] = this.parseFragment({ inList: true });
 
     const listItemTok = this._t.peek();
 
     // list items are some text followed by potentially a sub-list.
+    let sublist: ListNode | null = null;
     if (isList(listItemTok)) {
       const match = listItemTok.contents.match(/^(\s*)/);
 
       if (match![1].length > indent) {
-        contents.push(this.parseList());
+        sublist = this.parseList();
       }
     }
 
     let name: 'ordered-list-item' | 'unordered-list-item' =
       kind === 'ol' ? 'ordered-list-item' : 'unordered-list-item';
-    return this.finish({ name, contents });
+    return this.finish({ name, contents, sublist });
   }
 
   parseFragment(opts: ParseFragmentOpts): FragmentNode[];

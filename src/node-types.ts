@@ -174,17 +174,17 @@ export type OrderedListNode = {
 
 export type UnorderedListItemNode = {
   name: 'unordered-list-item';
-  contents: ListItemContentNode[];
+  contents: FragmentNode[];
+  sublist: ListNode | null;
   location?: LocationRange;
 };
 
 export type OrderedListItemNode = {
   name: 'ordered-list-item';
-  contents: ListItemContentNode[];
+  contents: FragmentNode[];
+  sublist: ListNode | null;
   location?: LocationRange;
 };
-
-export type ListItemContentNode = FragmentNode | ListNode;
 
 export type FragmentNode = TextNode | FormatNode | CommentNode | TagNode | OpaqueTagNode;
 

@@ -106,6 +106,13 @@ export class Emitter {
   emitListItem(li: OrderedListItemNode | UnorderedListItemNode) {
     this.str += '<li>';
     this.emitFragment(li.contents);
+    if (li.sublist !== null) {
+      if (li.sublist.name === 'ol') {
+        this.emitOrderedList(li.sublist);
+      } else {
+        this.emitUnorderedList(li.sublist);
+      }
+    }
     this.str += '</li>';
   }
 
