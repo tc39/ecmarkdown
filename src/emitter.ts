@@ -28,9 +28,9 @@ export class Emitter {
     return this.str;
   }
 
-  static emit(doc: Node | Node[]) {
+  static emit(node: Node | Node[]) {
     const emitter = new Emitter();
-    return emitter.emit(doc);
+    return emitter.emit(node);
   }
 
   emitNode(node: Node | Node[]) {
