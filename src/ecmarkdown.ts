@@ -1,5 +1,4 @@
 export type {
-  Node,
   OpaqueTagNode,
   TagNode,
   CommentNode,
@@ -10,10 +9,13 @@ export type {
   TickNode,
   TildeNode,
   PipeNode,
+  FormatNode,
   UnorderedListNode,
   OrderedListNode,
+  ListNode,
   UnorderedListItemNode,
   OrderedListItemNode,
+  Node,
 } from './node-types';
 
 export type { Observer } from './visitor';

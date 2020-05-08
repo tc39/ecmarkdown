@@ -190,8 +190,6 @@ export type FragmentNode = TextNode | FormatNode | CommentNode | TagNode | Opaqu
 
 export type ListNode = UnorderedListNode | OrderedListNode;
 
-export type ParagraphNode = OpaqueTagNode | AlgorithmNode | ListNode;
-
 export type Node =
   | OpaqueTagNode
   | TagNode
