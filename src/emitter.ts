@@ -7,7 +7,8 @@ import type {
   TagNode,
   UnderscoreNode,
   StarNode,
-  ListItemNode,
+  OrderedListItemNode,
+  UnorderedListItemNode,
   OrderedListNode,
   UnorderedListNode,
   AlgorithmNode,
@@ -49,7 +50,8 @@ export class Emitter {
       case 'ul':
         this.emitUnorderedList(node);
         break;
-      case 'list-item':
+      case 'ordered-list-item':
+      case 'unordered-list-item':
         this.emitListItem(node);
         break;
       case 'text':
@@ -91,17 +93,17 @@ export class Emitter {
       this.str += ' start="' + ol.start + '"';
     }
     this.str += '>';
-    ol.contents.forEach((item: ListItemNode) => this.emitListItem(item));
+    ol.contents.forEach((item: OrderedListItemNode) => this.emitListItem(item));
     this.str += '</ol>';
   }
 
   emitUnorderedList(ul: UnorderedListNode) {
     this.str += '<ul>';
-    ul.contents.forEach((item: ListItemNode) => this.emitListItem(item));
+    ul.contents.forEach((item: UnorderedListItemNode) => this.emitListItem(item));
     this.str += '</ul>';
   }
 
-  emitListItem(li: ListItemNode) {
+  emitListItem(li: OrderedListItemNode | UnorderedListItemNode) {
     this.str += '<li>';
     this.emitFragment(li.contents);
     this.str += '</li>';

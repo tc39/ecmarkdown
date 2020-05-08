@@ -18,6 +18,8 @@ import type {
   ListItemContentNode,
   OrderedListNode,
   UnorderedListNode,
+  OrderedListItemNode,
+  UnorderedListItemNode,
 } from './node-types';
 
 import type { Options } from './ecmarkdown';
@@ -96,7 +98,7 @@ export class Parser {
     while (true) {
       const tok = this._t.peek();
 
-      if (!isList(tok)) {
+      if (tok.name !== node.name) {
         break;
       }
 
@@ -106,13 +108,16 @@ export class Parser {
         break;
       }
 
-      node.contents.push(this.parseListItem(node.indent));
+      // @ts-ignore typescript is not smart enough to figure out that the types line up
+      node.contents.push(this.parseListItem(node.name, node.indent));
     }
 
     return this.finish(node);
   }
 
-  parseListItem(indent: number) {
+  parseListItem(kind: 'ol', indent: number): OrderedListItemNode;
+  parseListItem(kind: 'ul', indent: number): UnorderedListItemNode;
+  parseListItem(kind: 'ol' | 'ul', indent: number) {
     this.pushPos();
     // consume list token
     this._t.next();
@@ -130,7 +135,9 @@ export class Parser {
       }
     }
 
-    return this.finish({ name: 'list-item', contents });
+    let name: 'ordered-list-item' | 'unordered-list-item' =
+      kind === 'ol' ? 'ordered-list-item' : 'unordered-list-item';
+    return this.finish({ name, contents });
   }
 
   parseFragment(opts: ParseFragmentOpts): FragmentNode[];
