@@ -157,7 +157,10 @@ export class Parser {
       } else if (tok.name === 'parabreak') {
         break;
       } else if (tok.name === 'text' || tok.name === 'whitespace' || tok.name === 'linebreak') {
-        frag.push(this.parseText(opts, closingFormatKind));
+        let text = this.parseText(opts, closingFormatKind);
+        if (text !== null) {
+          frag.push(text);
+        }
       } else if (isFormatToken(tok)) {
         if (closingFormatKind !== undefined) {
           if (tok.name === closingFormatKind) {
@@ -195,7 +198,8 @@ export class Parser {
   // Text is either text tokens or whitespace tokens
   // list tokens are considered part of text if we're not in a list
   // format tokens are considered part of text if they're not a valid format
-  parseText(opts: ParseFragmentOpts, closingFormatKind: Format | undefined) {
+  // returns null rather than a node with no contents
+  parseText(opts: ParseFragmentOpts, closingFormatKind: Format | undefined): TextNode | null {
     this.pushPos();
     let contents = '';
     let lastRealTok = null;
@@ -265,6 +269,10 @@ export class Parser {
       contents += tok.contents;
 
       this._t.next();
+    }
+
+    if (contents === '') {
+      return null;
     }
 
     // @ts-ignore this should be `location!.end`, but we need to wait for TS to release a bugfix before we can do that
