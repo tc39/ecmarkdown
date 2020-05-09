@@ -272,6 +272,7 @@ export class Parser {
     }
 
     if (contents === '') {
+      this.popPos();
       return null;
     }
 
