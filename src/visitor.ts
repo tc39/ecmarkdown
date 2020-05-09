@@ -28,7 +28,7 @@ export function visit(node: Node, observer: Observer) {
   for (let childKey of childKeys[node.name]) {
     // @ts-ignore
     let child: Node | Node[] | null = node[childKey];
-    if (child == null) {
+    if (child === null) {
       continue;
     }
     if (Array.isArray(child)) {

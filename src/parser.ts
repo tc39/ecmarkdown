@@ -17,7 +17,6 @@ import type {
   FragmentNode,
   ListNode,
   OrderedListNode,
-  UnorderedListNode,
   OrderedListItemNode,
   UnorderedListItemNode,
 } from './node-types';
