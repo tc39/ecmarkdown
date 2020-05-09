@@ -205,7 +205,6 @@ export class Parser {
 
     while (true) {
       let tok = this._t.peek();
-      let firstTok = tok;
 
       let wsChunk = '';
       while (isWhitespace(tok)) {
@@ -227,7 +226,7 @@ export class Parser {
         break;
       }
 
-      lastRealTok = firstTok;
+      lastRealTok = tok;
 
       contents += wsChunk;
 
