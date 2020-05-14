@@ -1,6 +1,6 @@
 {
   "name": "ecmarkdown",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "A compiler for \"Ecmarkdown\" algorithm shorthand into HTML.",
   "main": "dist/ecmarkdown.js",
   "scripts": {
