@@ -15,9 +15,10 @@ import type {
   TagNode,
   OpaqueTagNode,
   FragmentNode,
-  ListItemContentNode,
+  ListNode,
   OrderedListNode,
-  UnorderedListNode,
+  OrderedListItemNode,
+  UnorderedListItemNode,
 } from './node-types';
 
 import type { Options } from './ecmarkdown';
@@ -84,7 +85,7 @@ export class Parser {
     this.pushPos();
     const startTok = this._t.peek() as OrderedListToken | UnorderedListToken;
 
-    let node: OrderedListNode | UnorderedListNode;
+    let node: ListNode;
     if (startTok.name === 'ul') {
       const match = startTok.contents.match(/(\s*)\* /);
       node = { name: 'ul', indent: match![1].length, contents: [] };
@@ -96,7 +97,7 @@ export class Parser {
     while (true) {
       const tok = this._t.peek();
 
-      if (!isList(tok)) {
+      if (tok.name !== node.name) {
         break;
       }
 
@@ -106,31 +107,37 @@ export class Parser {
         break;
       }
 
-      node.contents.push(this.parseListItem(node.indent));
+      // @ts-ignore typescript is not smart enough to figure out that the types line up
+      node.contents.push(this.parseListItem(node.name, node.indent));
     }
 
     return this.finish(node);
   }
 
-  parseListItem(indent: number) {
+  parseListItem(kind: 'ol', indent: number): OrderedListItemNode;
+  parseListItem(kind: 'ul', indent: number): UnorderedListItemNode;
+  parseListItem(kind: 'ol' | 'ul', indent: number): OrderedListItemNode | UnorderedListItemNode {
     this.pushPos();
     // consume list token
     this._t.next();
 
-    const contents: ListItemContentNode[] = this.parseFragment({ inList: true });
+    const contents: FragmentNode[] = this.parseFragment({ inList: true });
 
     const listItemTok = this._t.peek();
 
     // list items are some text followed by potentially a sub-list.
+    let sublist: ListNode | null = null;
     if (isList(listItemTok)) {
       const match = listItemTok.contents.match(/^(\s*)/);
 
       if (match![1].length > indent) {
-        contents.push(this.parseList());
+        sublist = this.parseList();
       }
     }
 
-    return this.finish({ name: 'list-item', contents });
+    let name: 'ordered-list-item' | 'unordered-list-item' =
+      kind === 'ol' ? 'ordered-list-item' : 'unordered-list-item';
+    return this.finish({ name, contents, sublist });
   }
 
   parseFragment(opts: ParseFragmentOpts): FragmentNode[];
@@ -149,7 +156,10 @@ export class Parser {
       } else if (tok.name === 'parabreak') {
         break;
       } else if (tok.name === 'text' || tok.name === 'whitespace' || tok.name === 'linebreak') {
-        frag.push(this.parseText(opts, closingFormatKind));
+        let text = this.parseText(opts, closingFormatKind);
+        if (text !== null) {
+          frag.push(text);
+        }
       } else if (isFormatToken(tok)) {
         if (closingFormatKind !== undefined) {
           if (tok.name === closingFormatKind) {
@@ -187,14 +197,14 @@ export class Parser {
   // Text is either text tokens or whitespace tokens
   // list tokens are considered part of text if we're not in a list
   // format tokens are considered part of text if they're not a valid format
-  parseText(opts: ParseFragmentOpts, closingFormatKind: Format | undefined) {
+  // returns null rather than a node with no contents
+  parseText(opts: ParseFragmentOpts, closingFormatKind: Format | undefined): TextNode | null {
     this.pushPos();
     let contents = '';
     let lastRealTok = null;
 
     while (true) {
       let tok = this._t.peek();
-      let firstTok = tok;
 
       let wsChunk = '';
       while (isWhitespace(tok)) {
@@ -216,7 +226,7 @@ export class Parser {
         break;
       }
 
-      lastRealTok = firstTok;
+      lastRealTok = tok;
 
       contents += wsChunk;
 
@@ -257,6 +267,11 @@ export class Parser {
       contents += tok.contents;
 
       this._t.next();
+    }
+
+    if (contents === '') {
+      this.popPos();
+      return null;
     }
 
     // @ts-ignore this should be `location!.end`, but we need to wait for TS to release a bugfix before we can do that

@@ -160,7 +160,7 @@ export type FormatNode = StarNode | UnderscoreNode | TickNode | TildeNode | Pipe
 export type UnorderedListNode = {
   name: 'ul';
   indent: number;
-  contents: ListItemNode[];
+  contents: UnorderedListItemNode[];
   location?: LocationRange;
 };
 
@@ -168,23 +168,27 @@ export type OrderedListNode = {
   name: 'ol';
   indent: number;
   start: number;
-  contents: ListItemNode[];
+  contents: OrderedListItemNode[];
   location?: LocationRange;
 };
 
-export type ListItemNode = {
-  name: 'list-item';
-  contents: ListItemContentNode[];
+export type UnorderedListItemNode = {
+  name: 'unordered-list-item';
+  contents: FragmentNode[];
+  sublist: ListNode | null;
   location?: LocationRange;
 };
 
-export type ListItemContentNode = FragmentNode | ListNode;
+export type OrderedListItemNode = {
+  name: 'ordered-list-item';
+  contents: FragmentNode[];
+  sublist: ListNode | null;
+  location?: LocationRange;
+};
 
 export type FragmentNode = TextNode | FormatNode | CommentNode | TagNode | OpaqueTagNode;
 
 export type ListNode = UnorderedListNode | OrderedListNode;
-
-export type ParagraphNode = OpaqueTagNode | AlgorithmNode | ListNode;
 
 export type Node =
   | OpaqueTagNode
@@ -199,4 +203,5 @@ export type Node =
   | PipeNode
   | UnorderedListNode
   | OrderedListNode
-  | ListItemNode;
+  | UnorderedListItemNode
+  | OrderedListItemNode;

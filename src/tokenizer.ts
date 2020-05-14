@@ -49,7 +49,6 @@ export class Tokenizer {
 
     while (this.pos < this.str.length && isWhitespace(this.str[this.pos])) {
       this.pos++;
-      this.column++;
     }
 
     return this.str.slice(startPos, this.pos);
