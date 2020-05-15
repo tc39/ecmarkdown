@@ -197,8 +197,8 @@ export class Tokenizer {
       if (this._newline) {
         this._newline = false;
 
-        const ws = this.scanWhitespace();
         const start = this.getLocation();
+        const ws = this.scanWhitespace();
 
         if (this.pos >= str.length) {
           if (ws.length > 0) {
