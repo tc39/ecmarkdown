@@ -279,12 +279,16 @@ export class Tokenizer {
         case '\n':
           this._newline = true;
 
-          if (str[this.pos + 1] === '\n') {
-            this.pos += 2;
-            this.enqueue({ name: 'parabreak', contents: '\n\n' }, start);
-          } else {
-            this.pos += 1;
+          const pos = this.pos;
+          let nextPos = pos + 1;
+          while (nextPos < str.length && str[nextPos] === '\n') {
+            nextPos++;
+          }
+          this.pos = nextPos;
+          if (nextPos === pos + 1) {
             this.enqueue({ name: 'linebreak', contents: '\n' }, start);
+          } else {
+            this.enqueue({ name: 'parabreak', contents: str.slice(pos, nextPos) }, start);
           }
           return;
         default:
@@ -390,8 +394,9 @@ export class Tokenizer {
         this.column = 0;
         ++this.line;
       } else if (tok.name === 'parabreak') {
+        let size = this.pos - startPos.offset;
         this.column = 0;
-        this.line += 2;
+        this.line += size;
       } else {
         let width = this.pos - startPos.offset;
         this.column += width;
