@@ -154,6 +154,11 @@ export class Parser {
       if (tok.name === 'EOF') {
         break;
       } else if (tok.name === 'parabreak') {
+        if (this._t.peek(2).name === 'EOF') {
+          this.pushPos();
+          this._t.next();
+          pushOrJoin(frag, this.finish({ name: 'text', contents: tok.contents }));
+        }
         break;
       } else if (tok.name === 'text' || tok.name === 'whitespace' || tok.name === 'linebreak') {
         let text = this.parseText(opts, closingFormatKind);

@@ -10,10 +10,11 @@ module.exports = function beautify(html) {
   });
 
   // https://github.com/beautify-web/js-beautify/issues/524#issuecomment-82791022
-  const fixNewlines = originalOutput.replace(/(<\/emu-[^>]+>)\n *<\/li>/g, '$1</li>');
+  const fixEmbeddedNewlines = originalOutput.replace(/(<\/emu-[^>]+>)\n *<\/li>/g, '$1</li>');
 
   // Remove empty =""s
-  const withSimplifiedAttributes = fixNewlines.replace(/=""/g, '');
+  const withSimplifiedAttributes = fixEmbeddedNewlines.replace(/=""/g, '');
 
-  return withSimplifiedAttributes + '\n';
+  // Preserve trailing line feeds, adding one if necessary
+  return withSimplifiedAttributes + (html.match(/\n*$/)[0] || '\n');
 };
