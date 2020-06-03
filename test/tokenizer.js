@@ -87,28 +87,33 @@ function testBasicToken(name, token) {
       assertTok(t.next(), 'EOF');
     });
 
-    it('is scanned properly after linebreak', function () {
-      const t = new Tokenizer('\n' + token);
+    if (token === '\n' || token === '\n\n') {
+      it('is scanned properly after a newline', function () {
+        const t = new Tokenizer('\n' + token);
+        assertTok(t.next(), 'parabreak', '\n' + token);
+        assertTok(t.next(), 'EOF');
+      });
 
-      if (token === '\n') {
-        assertTok(t.next(), 'parabreak', '\n\n');
-      } else if (token === '\n\n') {
-        assertTok(t.next(), 'parabreak', '\n\n');
-        assertTok(t.next(), 'linebreak', '\n');
-      } else {
+      it('is scanned properly after two newlines', function () {
+        const t = new Tokenizer('\n\n' + token);
+        assertTok(t.next(), 'parabreak', '\n\n' + token);
+        assertTok(t.next(), 'EOF');
+      });
+    } else {
+      it('is scanned properly after linebreak', function () {
+        const t = new Tokenizer('\n' + token);
         assertTok(t.next(), 'linebreak', '\n');
         assertTok(t.next(), name, token);
-      }
+        assertTok(t.next(), 'EOF');
+      });
 
-      assertTok(t.next(), 'EOF');
-    });
-
-    it('is scanned properly after parabreak', function () {
-      const t = new Tokenizer('\n\n' + token);
-      assertTok(t.next(), 'parabreak', '\n\n');
-      assertTok(t.next(), name, token);
-      assertTok(t.next(), 'EOF');
-    });
+      it('is scanned properly after parabreak', function () {
+        const t = new Tokenizer('\n\n' + token);
+        assertTok(t.next(), 'parabreak', '\n\n');
+        assertTok(t.next(), name, token);
+        assertTok(t.next(), 'EOF');
+      });
+    }
   });
 }
 
