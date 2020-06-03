@@ -397,7 +397,7 @@ export class Tokenizer {
         this.column = 0;
         ++this.line;
       } else if (tok.name === 'parabreak') {
-        let size = this.pos - startPos.offset;
+        let size = tok.contents.length;
         this.column = 0;
         this.line += size;
       } else {
