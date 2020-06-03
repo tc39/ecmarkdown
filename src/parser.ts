@@ -153,9 +153,14 @@ export class Parser {
 
       if (tok.name === 'EOF') {
         break;
-      } else if (tok.name === 'parabreak') {
+      } else if (tok.name === 'parabreak' && this._t.peek(2).name !== 'EOF') {
         break;
-      } else if (tok.name === 'text' || tok.name === 'whitespace' || tok.name === 'linebreak') {
+      } else if (
+        tok.name === 'text' ||
+        tok.name === 'whitespace' ||
+        tok.name === 'linebreak' ||
+        tok.name === 'parabreak'
+      ) {
         let text = this.parseText(opts, closingFormatKind);
         if (text !== null) {
           frag.push(text);
@@ -217,6 +222,10 @@ export class Parser {
         // In lists we don't need to bother representing trailing whitespace
         if (!opts.inList) {
           contents += wsChunk;
+          if (tok.name !== 'EOF') {
+            contents += tok.contents;
+            this._t.next();
+          }
         }
 
         break;
