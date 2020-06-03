@@ -279,16 +279,19 @@ export class Tokenizer {
         case '\n':
           this._newline = true;
 
-          const pos = this.pos;
-          let nextPos = pos + 1;
-          while (nextPos < str.length && str[nextPos] === '\n') {
-            nextPos++;
-          }
-          this.pos = nextPos;
-          if (nextPos === pos + 1) {
-            this.enqueue({ name: 'linebreak', contents: '\n' }, start);
-          } else {
-            this.enqueue({ name: 'parabreak', contents: str.slice(pos, nextPos) }, start);
+          {
+            const pos = this.pos;
+            let nextPos = pos + 1;
+            while (nextPos < str.length && str[nextPos] === '\n') {
+              nextPos++;
+            }
+
+            this.pos = nextPos;
+            if (nextPos === pos + 1) {
+              this.enqueue({ name: 'linebreak', contents: '\n' }, start);
+            } else {
+              this.enqueue({ name: 'parabreak', contents: str.slice(pos, nextPos) }, start);
+            }
           }
           return;
         default:
