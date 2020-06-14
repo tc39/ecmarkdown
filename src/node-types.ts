@@ -77,6 +77,12 @@ export type OrderedListToken = {
   location?: LocationRange;
 };
 
+export type LabelToken = {
+  name: 'label';
+  value: string;
+  location?: LocationRange;
+};
+
 export type Token =
   | EOFToken
   | FormatToken
@@ -176,6 +182,7 @@ export type UnorderedListItemNode = {
   name: 'unordered-list-item';
   contents: FragmentNode[];
   sublist: ListNode | null;
+  label: string | null;
   location?: LocationRange;
 };
 
@@ -183,6 +190,7 @@ export type OrderedListItemNode = {
   name: 'ordered-list-item';
   contents: FragmentNode[];
   sublist: ListNode | null;
+  label: string | null;
   location?: LocationRange;
 };
 

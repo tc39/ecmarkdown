@@ -55,6 +55,8 @@ Lists are written as a series of lines, each starting with either a number, e.g.
 
 Lists can be nested. To do so, use any number of spaces to indent; as long as the number of spaces is consistent, list items will stay together in a nested list.
 
+List items can be given a label by putting `[label="something"]` at the start of the item, as in `1. [label="something"]`. This will generate a `<li>` element with an id property of `step-something` or `item-something` for ordered and unordered lists respectively. This is used by Ecmarkup for referencing specific steps of Ecmarkdown algorithms.
+
 #### HTML Blocks
 
 Any line which starts with a block-level HTML tag ([as defined by CommonMark](http://spec.commonmark.org/0.22/#html-blocks), with the addition of `<emu-note>`, `<emu-clause>`, `<emu-intro>`, `<emu-annex>`, `<emu-biblio>`, `<emu-import>`, `<emu-table>`, `<emu-figure>`, `<emu-example>`, `<emu-alg>`, and `<emu-see-also-para>`) is a HTML block line. Ecmarkdown cannot be used on the line starting a HTML block, but subsequent lines before the closing tag do allow it.
