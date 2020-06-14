@@ -34,7 +34,7 @@ for (let file of fs.readdirSync(cases)) {
         }
       }
       if (existing === null) {
-        throw new assert.AssertionError(
+        throw new Error(
           `could not find snapshot for ${file}; perhaps you need to regenerate snapshots?`
         );
       }

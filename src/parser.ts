@@ -121,6 +121,8 @@ export class Parser {
     // consume list token
     this._t.next();
 
+    const label = this._t.tryScanLabel();
+
     const contents: FragmentNode[] = this.parseFragment({ inList: true });
 
     const listItemTok = this._t.peek();
@@ -137,7 +139,7 @@ export class Parser {
 
     let name: 'ordered-list-item' | 'unordered-list-item' =
       kind === 'ol' ? 'ordered-list-item' : 'unordered-list-item';
-    return this.finish({ name, contents, sublist });
+    return this.finish({ name, contents, sublist, label });
   }
 
   parseFragment(opts: ParseFragmentOpts): FragmentNode[];
