@@ -139,7 +139,7 @@ export class Parser {
 
     let name: 'ordered-list-item' | 'unordered-list-item' =
       kind === 'ol' ? 'ordered-list-item' : 'unordered-list-item';
-    return this.finish({ name, contents, sublist, id });
+    return this.finish({ name, contents, sublist, id: id == null ? null : id.value });
   }
 
   parseFragment(opts: ParseFragmentOpts): FragmentNode[];
