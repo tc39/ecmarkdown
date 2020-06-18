@@ -55,7 +55,7 @@ Lists are written as a series of lines, each starting with either a number, e.g.
 
 Lists can be nested. To do so, use any number of spaces to indent; as long as the number of spaces is consistent, list items will stay together in a nested list.
 
-List items can be given a label by putting `[label="something"]` at the start of the item, as in `1. [label="something"]`. This will generate a `<li>` element with an id property of `step-something` or `item-something` for ordered and unordered lists respectively. This is used by Ecmarkup for referencing specific steps of Ecmarkdown algorithms.
+List items can be given a id by putting `[id="something"]` at the start of the item, as in `1. [id="something"]`. This will generate a `<li>` element with an id property of `something`. This is used by Ecmarkup for referencing specific steps of Ecmarkdown algorithms.
 
 #### HTML Blocks
 

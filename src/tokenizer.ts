@@ -4,7 +4,7 @@ import type { Options } from './ecmarkdown';
 
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+[\w]+(\s*=\s*("[^"]*"|'[^']*'|[^><"'=``]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
-const labelRegexp = /^\[label="([\w-]+)"] /;
+const idRegexp = /^\[id="([\w-]+)"] /;
 const digitRegexp = /\d/;
 
 const opaqueTags = new Set(['emu-grammar', 'emu-production', 'pre', 'code', 'script', 'style']);
@@ -184,9 +184,9 @@ export class Tokenizer {
     return match[0];
   }
 
-  // Label tokens are only valid immediately after list tokens, so we let this be called by the parser.
-  tryScanLabel() {
-    const match = this.str.slice(this.pos).match(labelRegexp);
+  // ID tokens are only valid immediately after list tokens, so we let this be called by the parser.
+  tryScanId() {
+    const match = this.str.slice(this.pos).match(idRegexp);
     if (!match) {
       return null;
     }
