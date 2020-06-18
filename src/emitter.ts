@@ -104,11 +104,8 @@ export class Emitter {
   }
 
   emitListItem(li: OrderedListItemNode | UnorderedListItemNode) {
-    let label =
-      li.label === null
-        ? ''
-        : ` id="${li.name === 'ordered-list-item' ? 'step' : 'item'}-${li.label}"`;
-    this.str += `<li${label}>`;
+    let id = li.id === null ? '' : ` id="${li.id}"`;
+    this.str += `<li${id}>`;
     this.emitFragment(li.contents);
     if (li.sublist !== null) {
       if (li.sublist.name === 'ol') {
