@@ -1,4 +1,4 @@
-import type { Token, Position } from './node-types';
+import type { Token, IdToken, Position } from './node-types';
 
 import type { Options } from './ecmarkdown';
 
@@ -191,9 +191,14 @@ export class Tokenizer {
       return null;
     }
 
+    const start = this.getLocation();
+
     this.pos += match[0].length;
 
-    return match[1];
+    let token: IdToken = { name: 'id', value: match[1] };
+    this.locate(token, start);
+
+    return token;
   }
 
   // Attempts to match any of the tokens at the given index of str
@@ -404,7 +409,7 @@ export class Tokenizer {
     return this.previous;
   }
 
-  locate(tok: Token, startPos: Position) {
+  locate(tok: Token | IdToken, startPos: Position) {
     if (this._trackPositions) {
       if (tok.name === 'linebreak') {
         this.column = 0;
