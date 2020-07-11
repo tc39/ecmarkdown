@@ -1,6 +1,8 @@
 // I know this looks like it shouldn't do anything, but it's a workaround for a deficiency of the built-in omit.
 // See https://github.com/microsoft/TypeScript/issues/39556
-export type ActualOmit<T, K extends string> = T extends unknown ? Omit<T, K> : never;
+type ActualOmit<T, K extends string> = T extends unknown ? Omit<T, K> : never;
+
+export type Unlocated<T extends { location: LocationRange }> = ActualOmit<T, 'location'>;
 
 export type Position = {
   line: number;

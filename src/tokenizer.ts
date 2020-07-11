@@ -1,4 +1,4 @@
-import type { ActualOmit, Token, IdToken, Position } from './node-types';
+import type { Unlocated, Token, IdToken, Position } from './node-types';
 
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+[\w]+(\s*=\s*("[^"]*"|'[^']*'|[^><"'=``]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
@@ -191,7 +191,7 @@ export class Tokenizer {
 
     this.pos += match[0].length;
 
-    let token: Omit<IdToken, 'location'> = { name: 'id', value: match[1] };
+    let token: Unlocated<IdToken> = { name: 'id', value: match[1] };
     this.locate(token, start);
 
     return token;
@@ -359,12 +359,12 @@ export class Tokenizer {
     };
   }
 
-  enqueueLookahead(tok: ActualOmit<Token, 'location'>, pos: Position) {
+  enqueueLookahead(tok: Unlocated<Token>, pos: Position) {
     this.locate(tok, pos);
     this._lookahead.push(tok);
   }
 
-  enqueue(tok: ActualOmit<Token, 'location'>, pos: Position) {
+  enqueue(tok: Unlocated<Token>, pos: Position) {
     this.locate(tok, pos);
     this.queue.push(tok);
 
@@ -407,9 +407,9 @@ export class Tokenizer {
 
   // This is kind of an abuse of "asserts": we're not _asserting_ that `tok` has `location`, but rather arranging that this be so.
   // I don't think TS has a good way to model that, though.
-  locate(tok: ActualOmit<Token, 'location'>, startPos: Position): asserts tok is Token;
-  locate(tok: ActualOmit<IdToken, 'location'>, startPos: Position): asserts tok is IdToken;
-  locate(tok: ActualOmit<Token, 'location'> | ActualOmit<IdToken, 'location'>, startPos: Position) {
+  locate(tok: Unlocated<Token>, startPos: Position): asserts tok is Token;
+  locate(tok: Unlocated<IdToken>, startPos: Position): asserts tok is IdToken;
+  locate(tok: Unlocated<Token | IdToken>, startPos: Position) {
     if (tok.name === 'linebreak') {
       this.column = 0;
       ++this.line;

@@ -1,5 +1,5 @@
 import type {
-  ActualOmit,
+  Unlocated,
   LocationRange,
   Position,
   Token,
@@ -84,7 +84,7 @@ export class Parser {
     this.pushPos();
     const startTok = this._t.peek() as OrderedListToken | UnorderedListToken;
 
-    let node: ActualOmit<ListNode, 'location'>;
+    let node: Unlocated<ListNode>;
     if (startTok.name === 'ul') {
       const match = startTok.contents.match(/(\s*)\* /);
       node = { name: 'ul', indent: match![1].length, contents: [] };
@@ -357,7 +357,7 @@ export class Parser {
     return node.location.end;
   }
 
-  finish<T extends ActualOmit<Node, 'location'>>(
+  finish<T extends Unlocated<Node>>(
     node: T,
     start?: Position,
     end?: Position
@@ -440,7 +440,7 @@ function unshiftOrJoin(list: ThingWithContents[], node: ThingWithContents) {
 
 // Parsing of non-terminals, eg. |foo[?Param]_opt| or |foo[?Param]?|
 const nonTerminalRe = /^([A-Za-z0-9]+)(?:\[([^\]]+)\])?(_opt|\?)?$/;
-function parseNonTerminal(str: string): Omit<PipeNode, 'location'> | null {
+function parseNonTerminal(str: string): Unlocated<PipeNode> | null {
   const match = str.match(nonTerminalRe);
 
   if (!match) {
