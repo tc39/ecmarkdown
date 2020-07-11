@@ -9,8 +9,8 @@ describe('Parser', function () {
     assert.deepEqual(node.location, location);
   }
   it('tracks positions', function () {
-    const tokenizer = new Tokenizer('  1. [id="thing"] a\n  2. b c', { trackPositions: true });
-    const parser = new Parser(tokenizer, { trackPositions: true });
+    const tokenizer = new Tokenizer('  1. [id="thing"] a\n  2. b c');
+    const parser = new Parser(tokenizer);
     const algorithm = parser.parseAlgorithm();
     assertNode(algorithm, 'algorithm', {
       start: { line: 1, column: 0, offset: 0 },
