@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -p src",
     "prepublish": "npm run build",
-    "test": "mocha --reporter dot test/tokenizer.js test/parser.js && node test/run-cases.js",
+    "test": "mocha test/",
+    "rebaseline": "UPDATE_SNAPSHOTS=true npm run test",
     "lint": "eslint --ext .js,.ts src test",
     "format": "prettier --write src test"
   },
