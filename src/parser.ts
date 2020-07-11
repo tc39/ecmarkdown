@@ -1,10 +1,9 @@
 import type {
+  ActualOmit,
   LocationRange,
-  Located,
   Position,
   Token,
   NotEOFToken,
-  LocatedToken,
   Format,
   FormatToken,
   OrderedListToken,
@@ -12,12 +11,10 @@ import type {
   WhitespaceToken,
   LinebreakToken,
   Node,
-  LocatedNode,
   PipeNode,
   TextNode,
   CommentNode,
   TagNode,
-  OpaqueTagNode,
   FragmentNode,
   ListNode,
   OrderedListNode,
@@ -87,7 +84,7 @@ export class Parser {
     this.pushPos();
     const startTok = this._t.peek() as OrderedListToken | UnorderedListToken;
 
-    let node: ListNode;
+    let node: ActualOmit<ListNode, 'location'>;
     if (startTok.name === 'ul') {
       const match = startTok.contents.match(/(\s*)\* /);
       node = { name: 'ul', indent: match![1].length, contents: [] };
@@ -116,9 +113,9 @@ export class Parser {
     return this.finish(node);
   }
 
-  parseListItem(kind: 'ol', indent: number): OrderedListItemNode & Located;
-  parseListItem(kind: 'ul', indent: number): UnorderedListItemNode & Located;
-  parseListItem(kind: 'ol' | 'ul', indent: number): (OrderedListItemNode | UnorderedListItemNode) & Located {
+  parseListItem(kind: 'ol', indent: number): OrderedListItemNode;
+  parseListItem(kind: 'ul', indent: number): UnorderedListItemNode;
+  parseListItem(kind: 'ol' | 'ul', indent: number): OrderedListItemNode | UnorderedListItemNode {
     this.pushPos();
     // consume list token
     this._t.next();
@@ -144,13 +141,13 @@ export class Parser {
     return this.finish({ name, contents, sublist, id: id == null ? null : id.value });
   }
 
-  parseFragment(opts: ParseFragmentOpts): (FragmentNode & Located)[];
+  parseFragment(opts: ParseFragmentOpts): FragmentNode[];
   parseFragment(
     opts: ParseFragmentOpts,
     closingFormatKind: Format
-  ): ((TextNode | CommentNode | TagNode) & Located)[];
+  ): (TextNode | CommentNode | TagNode)[];
   parseFragment(opts: ParseFragmentOpts, closingFormatKind?: Format) {
-    let frag: (FragmentNode & Located)[] = [];
+    let frag: FragmentNode[] = [];
 
     while (true) {
       const tok = this._t.peek();
@@ -290,12 +287,12 @@ export class Parser {
   }
 
   parseFormat(format: Format, opts: ParseFragmentOpts) {
-    const startTok = this._t.next() as FormatToken & Located;
-    let contents: ((TextNode | CommentNode | TagNode) & Located)[] = [];
+    const startTok = this._t.next() as FormatToken;
+    let contents: (TextNode | CommentNode | TagNode)[] = [];
 
     if (startTok.name === 'underscore') {
       if (this._t.peek().name === 'text') {
-        contents = [this._t.next() as TextNode & Located];
+        contents = [this._t.next() as TextNode];
       }
     } else {
       contents = this.parseFragment(opts, format);
@@ -352,15 +349,19 @@ export class Parser {
   }
 
   // TODO rename to getStart ?
-  getPos(node: LocatedNode | LocatedToken = this._t.peek()) {
+  getPos(node: Node | Token = this._t.peek()) {
     return node.location.start;
   }
 
-  getEnd(node: LocatedNode | LocatedToken) {
+  getEnd(node: Node | Token) {
     return node.location.end;
   }
 
-  finish<T extends Node>(node: T, start?: Position, end?: Position): T & Located {
+  finish<T extends ActualOmit<Node, 'location'>>(
+    node: T,
+    start?: Position,
+    end?: Position
+  ): T & { location: LocationRange } {
     let actualStart: Position = start ?? this.popPos()!;
     let actualEnd: Position =
       end ??
@@ -439,7 +440,7 @@ function unshiftOrJoin(list: ThingWithContents[], node: ThingWithContents) {
 
 // Parsing of non-terminals, eg. |foo[?Param]_opt| or |foo[?Param]?|
 const nonTerminalRe = /^([A-Za-z0-9]+)(?:\[([^\]]+)\])?(_opt|\?)?$/;
-function parseNonTerminal(str: string): PipeNode | null {
+function parseNonTerminal(str: string): Omit<PipeNode, 'location'> | null {
   const match = str.match(nonTerminalRe);
 
   if (!match) {

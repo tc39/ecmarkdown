@@ -1,4 +1,4 @@
-import type { LocatedToken, Token, IdToken, Position } from './node-types';
+import type { ActualOmit, Token, IdToken, Position } from './node-types';
 
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+[\w]+(\s*=\s*("[^"]*"|'[^']*'|[^><"'=``]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
@@ -11,10 +11,10 @@ export class Tokenizer {
   str: string;
   _eof: boolean;
   pos: number;
-  queue: LocatedToken[];
+  queue: Token[];
   _newline: boolean;
-  _lookahead: LocatedToken[];
-  previous: LocatedToken | undefined;
+  _lookahead: Token[];
+  previous: Token | undefined;
   line: number;
   column: number;
 
@@ -191,7 +191,7 @@ export class Tokenizer {
 
     this.pos += match[0].length;
 
-    let token: IdToken = { name: 'id', value: match[1] };
+    let token: Omit<IdToken, 'location'> = { name: 'id', value: match[1] };
     this.locate(token, start);
 
     return token;
@@ -359,12 +359,12 @@ export class Tokenizer {
     };
   }
 
-  enqueueLookahead(tok: Token, pos: Position) {
+  enqueueLookahead(tok: ActualOmit<Token, 'location'>, pos: Position) {
     this.locate(tok, pos);
     this._lookahead.push(tok);
   }
 
-  enqueue(tok: Token, pos: Position) {
+  enqueue(tok: ActualOmit<Token, 'location'>, pos: Position) {
     this.locate(tok, pos);
     this.queue.push(tok);
 
@@ -405,7 +405,11 @@ export class Tokenizer {
     return this.previous;
   }
 
-  locate(tok: Token | IdToken, startPos: Position): asserts tok is LocatedToken {
+  // This is kind of an abuse of "asserts": we're not _asserting_ that `tok` has `location`, but rather arranging that this be so.
+  // I don't think TS has a good way to model that, though.
+  locate(tok: ActualOmit<Token, 'location'>, startPos: Position): asserts tok is Token;
+  locate(tok: ActualOmit<IdToken, 'location'>, startPos: Position): asserts tok is IdToken;
+  locate(tok: ActualOmit<Token, 'location'> | ActualOmit<IdToken, 'location'>, startPos: Position) {
     if (tok.name === 'linebreak') {
       this.column = 0;
       ++this.line;
