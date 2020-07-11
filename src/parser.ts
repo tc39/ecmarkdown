@@ -49,9 +49,7 @@ export class Parser {
   static parseFragment(str: string) {
     let tokenizer = new Tokenizer(str);
     let out = new Parser(tokenizer).parseFragment({});
-    if (tokenizer.peek().name !== 'EOF') {
-      throw new Error('expecting EOF, got ' + tokenizer.peek().name);
-    }
+    tokenizer.expect('EOF');
     return out;
   }
 
@@ -69,14 +67,10 @@ export class Parser {
       }
       break;
     }
-    if (this._t.peek().name !== 'ol') {
-      throw new Error('expecting ordered list, got ' + this._t.peek().name);
-    }
+    this._t.expect('ol');
     this.pushPos();
     let ret = this.finish({ name: 'algorithm', contents: this.parseList() as OrderedListNode });
-    if (this._t.peek().name !== 'EOF') {
-      throw new Error('expecting EOF, got ' + this._t.peek().name);
-    }
+    this._t.expect('EOF');
     return ret;
   }
 

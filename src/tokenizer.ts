@@ -345,7 +345,7 @@ export class Tokenizer {
             return;
           } else {
             // Don't think it's possible to reach here.
-            throw new Error('Unexpected token ' + chr + ' at offset ' + this.pos);
+            this.raise(`Unexpected token ${chr}`, start);
           }
       }
     }
@@ -426,6 +426,25 @@ export class Tokenizer {
       start: startPos,
       end: this.getLocation(),
     };
+  }
+
+  expect(name: Token['name']) {
+    let lookahead = this.peek();
+    if (lookahead.name === name) {
+      return;
+    }
+    this.raise(`Unexpected token ${lookahead.name}; expected ${name}`, lookahead.location.start);
+  }
+
+  raise(message: string, pos: Position) {
+    let e = new SyntaxError(message);
+    // @ts-ignore
+    e.offset = pos.offset;
+    // @ts-ignore
+    e.line = pos.line;
+    // @ts-ignore
+    e.column = pos.column;
+    throw e;
   }
 }
 
