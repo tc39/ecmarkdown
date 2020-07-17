@@ -3,20 +3,18 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const beautify = require('./helpers/beautify.js');
-const Mocha = require('mocha');
 
 const ecmarkdown = require('..');
 
-let shouldUpdate = process.argv.includes('-u') || process.argv.includes('--update');
+let shouldUpdate = process.env.UPDATE_SNAPSHOTS === 'true';
 
-let mocha = new Mocha();
-let cases = path.resolve(__dirname, 'cases');
-for (let file of fs.readdirSync(cases)) {
-  if (!file.endsWith('.ecmarkdown')) {
-    continue;
-  }
-  mocha.suite.addTest(
-    new Mocha.Test(file, () => {
+describe('baselines', () => {
+  let cases = path.resolve(__dirname, 'cases');
+  for (let file of fs.readdirSync(cases)) {
+    if (!file.endsWith('.ecmarkdown')) {
+      continue;
+    }
+    it(file, () => {
       let snapshotFile = path.resolve(cases, file.replace(/ecmarkdown$/, 'html'));
 
       let input = fs.readFileSync(path.resolve(cases, file), 'utf8');
@@ -39,9 +37,6 @@ for (let file of fs.readdirSync(cases)) {
         );
       }
       assert.strictEqual(existing, output);
-    })
-  );
-}
-mocha.run(failures => {
-  process.exitCode = failures ? 1 : 0;
+    });
+  }
 });
