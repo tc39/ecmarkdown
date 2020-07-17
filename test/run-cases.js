@@ -21,7 +21,7 @@ describe('baselines', () => {
       let processor = file.endsWith('.fragment.ecmarkdown')
         ? ecmarkdown.fragment
         : ecmarkdown.algorithm;
-      let rawOutput = processor(input, { trackPositions: true });
+      let rawOutput = processor(input);
       let output = beautify(rawOutput);
       let existing = fs.existsSync(snapshotFile) ? fs.readFileSync(snapshotFile, 'utf8') : null;
       if (shouldUpdate) {

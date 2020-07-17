@@ -1,3 +1,9 @@
+// I know this looks like it shouldn't do anything, but it's a workaround for a deficiency of the built-in omit.
+// See https://github.com/microsoft/TypeScript/issues/39556
+type ActualOmit<T, K extends string> = T extends unknown ? Omit<T, K> : never;
+
+export type Unlocated<T extends { location: LocationRange }> = ActualOmit<T, 'location'>;
+
 export type Position = {
   line: number;
   column: number;
@@ -12,7 +18,7 @@ export type LocationRange = {
 export type EOFToken = {
   name: 'EOF';
   done: true;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type Format = 'star' | 'underscore' | 'tick' | 'pipe' | 'tilde';
@@ -20,67 +26,67 @@ export type Format = 'star' | 'underscore' | 'tick' | 'pipe' | 'tilde';
 export type FormatToken = {
   name: Format;
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type ParabreakToken = {
   name: 'parabreak';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type LinebreakToken = {
   name: 'linebreak';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type WhitespaceToken = {
   name: 'whitespace';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type TextToken = {
   name: 'text';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type CommentToken = {
   name: 'comment';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type OpaqueTagToken = {
   name: 'opaqueTag';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type TagToken = {
   name: 'tag';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type UnorderedListToken = {
   name: 'ul';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type OrderedListToken = {
   name: 'ol';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type IdToken = {
   name: 'id';
   value: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type Token =
@@ -101,55 +107,55 @@ export type NotEOFToken = Exclude<Token, EOFToken>;
 export type OpaqueTagNode = {
   name: 'opaqueTag';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type TagNode = {
   name: 'tag';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type CommentNode = {
   name: 'comment';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type AlgorithmNode = {
   name: 'algorithm';
   contents: OrderedListNode;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type TextNode = {
   name: 'text';
   contents: string;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type StarNode = {
   name: 'star';
   contents: FragmentNode[];
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type UnderscoreNode = {
   name: 'underscore';
   contents: FragmentNode[];
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type TickNode = {
   name: 'tick';
   contents: FragmentNode[];
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type TildeNode = {
   name: 'tilde';
   contents: FragmentNode[];
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type PipeNode = {
@@ -158,7 +164,7 @@ export type PipeNode = {
   params: string;
   optional: boolean;
   contents: null;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type FormatNode = StarNode | UnderscoreNode | TickNode | TildeNode | PipeNode;
@@ -167,7 +173,7 @@ export type UnorderedListNode = {
   name: 'ul';
   indent: number;
   contents: UnorderedListItemNode[];
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type OrderedListNode = {
@@ -175,7 +181,7 @@ export type OrderedListNode = {
   indent: number;
   start: number;
   contents: OrderedListItemNode[];
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type UnorderedListItemNode = {
@@ -183,7 +189,7 @@ export type UnorderedListItemNode = {
   contents: FragmentNode[];
   sublist: ListNode | null;
   id: string | null;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type OrderedListItemNode = {
@@ -191,7 +197,7 @@ export type OrderedListItemNode = {
   contents: FragmentNode[];
   sublist: ListNode | null;
   id: string | null;
-  location?: LocationRange;
+  location: LocationRange;
 };
 
 export type FragmentNode = TextNode | FormatNode | CommentNode | TagNode | OpaqueTagNode;

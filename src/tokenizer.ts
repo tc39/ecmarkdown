@@ -1,6 +1,4 @@
-import type { Token, IdToken, Position } from './node-types';
-
-import type { Options } from './ecmarkdown';
+import type { Unlocated, Token, IdToken, Position } from './node-types';
 
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+[\w]+(\s*=\s*("[^"]*"|'[^']*'|[^><"'=``]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
@@ -11,7 +9,6 @@ const opaqueTags = new Set(['emu-grammar', 'emu-production', 'pre', 'code', 'scr
 
 export class Tokenizer {
   str: string;
-  _trackPositions: boolean;
   _eof: boolean;
   pos: number;
   queue: Token[];
@@ -21,9 +18,8 @@ export class Tokenizer {
   line: number;
   column: number;
 
-  constructor(str: string, options?: Options) {
+  constructor(str: string) {
     this.str = str;
-    this._trackPositions = !!(options && options.trackPositions);
     this._eof = false;
     this.pos = 0;
     this.line = 1;
@@ -195,7 +191,7 @@ export class Tokenizer {
 
     this.pos += match[0].length;
 
-    let token: IdToken = { name: 'id', value: match[1] };
+    let token: Unlocated<IdToken> = { name: 'id', value: match[1] };
     this.locate(token, start);
 
     return token;
@@ -363,12 +359,12 @@ export class Tokenizer {
     };
   }
 
-  enqueueLookahead(tok: Token, pos: Position) {
+  enqueueLookahead(tok: Unlocated<Token>, pos: Position) {
     this.locate(tok, pos);
     this._lookahead.push(tok);
   }
 
-  enqueue(tok: Token, pos: Position) {
+  enqueue(tok: Unlocated<Token>, pos: Position) {
     this.locate(tok, pos);
     this.queue.push(tok);
 
@@ -409,24 +405,27 @@ export class Tokenizer {
     return this.previous;
   }
 
-  locate(tok: Token | IdToken, startPos: Position) {
-    if (this._trackPositions) {
-      if (tok.name === 'linebreak') {
-        this.column = 0;
-        ++this.line;
-      } else if (tok.name === 'parabreak') {
-        let size = tok.contents.length;
-        this.column = 0;
-        this.line += size;
-      } else {
-        let width = this.pos - startPos.offset;
-        this.column += width;
-      }
-      tok.location = {
-        start: startPos,
-        end: this.getLocation(),
-      };
+  // This is kind of an abuse of "asserts": we're not _asserting_ that `tok` has `location`, but rather arranging that this be so.
+  // I don't think TS has a good way to model that, though.
+  locate(tok: Unlocated<Token>, startPos: Position): asserts tok is Token;
+  locate(tok: Unlocated<IdToken>, startPos: Position): asserts tok is IdToken;
+  locate(tok: Unlocated<Token | IdToken>, startPos: Position) {
+    if (tok.name === 'linebreak') {
+      this.column = 0;
+      ++this.line;
+    } else if (tok.name === 'parabreak') {
+      let size = tok.contents.length;
+      this.column = 0;
+      this.line += size;
+    } else {
+      let width = this.pos - startPos.offset;
+      this.column += width;
     }
+    // @ts-ignore
+    tok.location = {
+      start: startPos,
+      end: this.getLocation(),
+    };
   }
 }
 

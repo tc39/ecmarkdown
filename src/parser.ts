@@ -1,4 +1,6 @@
 import type {
+  Unlocated,
+  LocationRange,
   Position,
   Token,
   NotEOFToken,
@@ -13,15 +15,12 @@ import type {
   TextNode,
   CommentNode,
   TagNode,
-  OpaqueTagNode,
   FragmentNode,
   ListNode,
   OrderedListNode,
   OrderedListItemNode,
   UnorderedListItemNode,
 } from './node-types';
-
-import type { Options } from './ecmarkdown';
 
 // TODO types for escapeHtml
 // @ts-ignore
@@ -35,21 +34,21 @@ type ParseFragmentOpts = { inList?: boolean };
 
 export class Parser {
   _t: Tokenizer;
-  _posStack: Position[] | undefined;
+  _posStack: Position[];
 
-  constructor(tokenizer: Tokenizer, options?: Options) {
+  constructor(tokenizer: Tokenizer) {
     this._t = tokenizer;
-    this._posStack = options && options.trackPositions ? [] : undefined;
+    this._posStack = [];
   }
 
-  static parseAlgorithm(str: string, options?: Options) {
-    let tokenizer = new Tokenizer(str, options);
-    return new Parser(tokenizer, options).parseAlgorithm();
+  static parseAlgorithm(str: string) {
+    let tokenizer = new Tokenizer(str);
+    return new Parser(tokenizer).parseAlgorithm();
   }
 
-  static parseFragment(str: string, options?: Options) {
-    let tokenizer = new Tokenizer(str, options);
-    let out = new Parser(tokenizer, options).parseFragment({});
+  static parseFragment(str: string) {
+    let tokenizer = new Tokenizer(str);
+    let out = new Parser(tokenizer).parseFragment({});
     if (tokenizer.peek().name !== 'EOF') {
       throw new Error('expecting EOF, got ' + tokenizer.peek().name);
     }
@@ -85,7 +84,7 @@ export class Parser {
     this.pushPos();
     const startTok = this._t.peek() as OrderedListToken | UnorderedListToken;
 
-    let node: ListNode;
+    let node: Unlocated<ListNode>;
     if (startTok.name === 'ul') {
       const match = startTok.contents.match(/(\s*)\* /);
       node = { name: 'ul', indent: match![1].length, contents: [] };
@@ -182,7 +181,7 @@ export class Parser {
           frag = frag.concat(this.parseFormat(tok.name, opts));
         }
       } else if (tok.name === 'comment' || tok.name === 'tag' || tok.name === 'opaqueTag') {
-        frag.push(tok as CommentNode | TagNode | OpaqueTagNode); // Why can't TS infer this type?
+        frag.push(tok);
         this._t.next();
       } else if (isList(tok)) {
         if (opts.inList) {
@@ -193,8 +192,10 @@ export class Parser {
           pushOrJoin(frag, this.finish({ name: 'text', contents: tok.contents }));
         }
       } else {
-        // @ts-ignore
-        throw new Error('Unexpected token ' + tok.name);
+        throw new Error(
+          // @ts-ignore
+          `Unknown token type ${tok.name}. This is a bug in ecmarkdown; please report it.`
+        );
       }
     }
 
@@ -205,7 +206,7 @@ export class Parser {
   // list tokens are considered part of text if we're not in a list
   // format tokens are considered part of text if they're not a valid format
   // returns null rather than a node with no contents
-  parseText(opts: ParseFragmentOpts, closingFormatKind: Format | undefined): TextNode | null {
+  parseText(opts: ParseFragmentOpts, closingFormatKind: Format | undefined) {
     this.pushPos();
     let contents = '';
     let lastRealTok = null;
@@ -281,13 +282,11 @@ export class Parser {
       return null;
     }
 
-    // @ts-ignore this should be `location!.end`, but we need to wait for TS to release a bugfix before we can do that
-    // see https://github.com/microsoft/TypeScript/pull/36539
-    let endLoc = this._posStack && lastRealTok?.location.end;
+    let endLoc = lastRealTok?.location.end;
     return this.finish({ name: 'text', contents }, undefined, endLoc);
   }
 
-  parseFormat(format: Format, opts: ParseFragmentOpts): FragmentNode[] {
+  parseFormat(format: Format, opts: ParseFragmentOpts) {
     const startTok = this._t.next() as FormatToken;
     let contents: (TextNode | CommentNode | TagNode)[] = [];
 
@@ -342,34 +341,36 @@ export class Parser {
   }
 
   pushPos() {
-    if (this._posStack) {
-      this._posStack.push(this.getPos()!);
-    }
+    this._posStack.push(this.getPos()!);
   }
 
   popPos() {
-    return this._posStack?.pop();
+    return this._posStack.pop();
   }
 
   // TODO rename to getStart ?
   getPos(node: Node | Token = this._t.peek()) {
-    return this._posStack && node.location?.start;
+    return node.location.start;
   }
 
   getEnd(node: Node | Token) {
-    return this._posStack && node.location?.end;
+    return node.location.end;
   }
 
-  finish<T extends Node>(node: T, start?: Position, end?: Position): T {
-    if (this._posStack) {
-      let actualStart: Position = start ?? this.popPos()!;
-      let actualEnd: Position =
-        end ??
-        (this._t.previous === undefined
-          ? { line: 1, column: 0, offset: 0 }
-          : { ...this._t.previous.location!.end });
-      node.location = { start: actualStart, end: actualEnd };
-    }
+  finish<T extends Unlocated<Node>>(
+    node: T,
+    start?: Position,
+    end?: Position
+  ): T & { location: LocationRange } {
+    let actualStart: Position = start ?? this.popPos()!;
+    let actualEnd: Position =
+      end ??
+      (this._t.previous === undefined
+        ? { line: 1, column: 0, offset: 0 }
+        : { ...this._t.previous.location!.end });
+    // @ts-ignore
+    node.location = { start: actualStart, end: actualEnd };
+    // @ts-ignore
     return node;
   }
 }
@@ -439,7 +440,7 @@ function unshiftOrJoin(list: ThingWithContents[], node: ThingWithContents) {
 
 // Parsing of non-terminals, eg. |foo[?Param]_opt| or |foo[?Param]?|
 const nonTerminalRe = /^([A-Za-z0-9]+)(?:\[([^\]]+)\])?(_opt|\?)?$/;
-function parseNonTerminal(str: string): PipeNode | null {
+function parseNonTerminal(str: string): Unlocated<PipeNode> | null {
   const match = str.match(nonTerminalRe);
 
   if (!match) {
