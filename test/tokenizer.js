@@ -417,12 +417,12 @@ describe('Tokenizer', function () {
   it('tracks positions', function () {
     const t = new Tokenizer('1. foo');
     assertTok(t.next(), 'ol', '1. ', {
-      start: { line: 1, column: 0, offset: 0 },
-      end: { line: 1, column: 3, offset: 3 },
+      start: { line: 1, column: 1, offset: 0 },
+      end: { line: 1, column: 4, offset: 3 },
     });
     assertTok(t.next(), 'text', 'foo', {
-      start: { line: 1, column: 3, offset: 3 },
-      end: { line: 1, column: 6, offset: 6 },
+      start: { line: 1, column: 4, offset: 3 },
+      end: { line: 1, column: 7, offset: 6 },
     });
   });
 });

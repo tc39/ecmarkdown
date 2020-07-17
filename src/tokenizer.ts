@@ -23,7 +23,7 @@ export class Tokenizer {
     this._eof = false;
     this.pos = 0;
     this.line = 1;
-    this.column = 0;
+    this.column = 1;
     this.queue = []; // stores tokens when we peek so we don't have to rematch
 
     this._newline = true;
@@ -411,11 +411,11 @@ export class Tokenizer {
   locate(tok: Unlocated<IdToken>, startPos: Position): asserts tok is IdToken;
   locate(tok: Unlocated<Token | IdToken>, startPos: Position) {
     if (tok.name === 'linebreak') {
-      this.column = 0;
+      this.column = 1;
       ++this.line;
     } else if (tok.name === 'parabreak') {
       let size = tok.contents.length;
-      this.column = 0;
+      this.column = 1;
       this.line += size;
     } else {
       let width = this.pos - startPos.offset;
