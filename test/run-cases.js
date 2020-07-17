@@ -6,7 +6,7 @@ const beautify = require('./helpers/beautify.js');
 
 const ecmarkdown = require('..');
 
-let shouldUpdate = process.env.UPDATE_SNAPSHOTS != null;
+let shouldUpdate = process.env.UPDATE_SNAPSHOTS === 'true';
 
 describe('baselines', () => {
   let cases = path.resolve(__dirname, 'cases');
