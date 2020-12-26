@@ -2,13 +2,10 @@
   <li>Assert: Type(<var>iterator</var>) is Object.</li>
   <li>Assert: <var>completion</var> is a Completion Record.</li>
   <li>Let <var>hasReturn</var> be HasProperty(<var>iterator</var>, <code>"return"</code>).</li>
-  <li>ReturnIfAbrupt(<var>hasReturn</var>).
-    <ol>
-      <li>If <var>hasReturn</var> is <emu-val>true</emu-val>, then
-        <ol>
+  <li>ReturnIfAbrupt(<var>hasReturn</var>).<ol>
+      <li>If <var>hasReturn</var> is <emu-val>true</emu-val>, then<ol>
           <li>Let <var>innerResult</var> be Invoke(<var>iterator</var>, <code>"return"</code>, ( )).</li>
-          <li>If <var>completion</var>.[[type]] is not <emu-const>throw</emu-const> and <var>innerResult</var>.[[type]] is <emu-const>throw</emu-const>, then
-            <ol>
+          <li>If <var>completion</var>.[[type]] is not <emu-const>throw</emu-const> and <var>innerResult</var>.[[type]] is <emu-const>throw</emu-const>, then<ol>
               <li>Return <var>innerResult</var>.</li>
             </ol>
           </li>
