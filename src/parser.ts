@@ -223,7 +223,7 @@ export class Parser {
 
         break;
       }
-      if (tok.name === 'opaqueTag') {
+      if (tok.name === 'opaqueTag' || tok.name === 'comment') {
         contents += wsChunk;
         break;
       }
