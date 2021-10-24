@@ -22,7 +22,11 @@ export type Observer = {
   exit?: (node: Node) => void;
 };
 
-export function visit(node: Node, observer: Observer) {
+export function visit(node: Node | Node[], observer: Observer) {
+  if (Array.isArray(node)) {
+    node.forEach(n => visit(n, observer));
+    return;
+  }
   observer.enter?.(node);
   // @ts-ignore
   for (let childKey of childKeys[node.name]) {
