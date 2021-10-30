@@ -1,9 +1,9 @@
 'use strict';
 const assert = require('assert');
-const { parseAlgorithm } = require('../');
+const { parseAlgorithm, parseFragment } = require('../');
 
 describe('Parser', function () {
-  it('tracks positions', function () {
+  it('tracks positions 1', function () {
     const baseSource = '  1. [id="thing"] a\n  2. b c';
     const assertNodeLocation = makeAssertLocation(baseSource);
     const algorithm = parseAlgorithm(baseSource);
@@ -16,6 +16,15 @@ describe('Parser', function () {
     const item1 = list.contents[1];
     assertNodeLocation(item1, '  2. b c');
     assertNodeLocation(item1.contents[0], 'b c');
+  });
+
+  it('tracks positions 2', function () {
+    const baseSource = 'Text |Nonterminal| text.';
+    const assertNodeLocation = makeAssertLocation(baseSource);
+    const fragments = parseFragment(baseSource);
+    assertNodeLocation(fragments[0], 'Text ');
+    assertNodeLocation(fragments[1], '|Nonterminal| ');
+    assertNodeLocation(fragments[2], ' text.');
   });
 
   it('does not consider comments to be text', function () {
