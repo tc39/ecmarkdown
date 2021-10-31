@@ -19,12 +19,14 @@ describe('Parser', function () {
   });
 
   it('tracks positions 2', function () {
-    const baseSource = 'Text |Nonterminal| text.';
+    const baseSource = 'Text |Nonterminal?| *format* text.';
     const assertNodeLocation = makeAssertLocation(baseSource);
     const fragments = parseFragment(baseSource);
     assertNodeLocation(fragments[0], 'Text ');
-    assertNodeLocation(fragments[1], '|Nonterminal| ');
-    assertNodeLocation(fragments[2], ' text.');
+    assertNodeLocation(fragments[1], '|Nonterminal?|');
+    assertNodeLocation(fragments[2], ' ');
+    assertNodeLocation(fragments[3], '*format*');
+    assertNodeLocation(fragments[4], ' text.');
   });
 
   it('does not consider comments to be text', function () {

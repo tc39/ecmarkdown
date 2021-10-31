@@ -209,8 +209,10 @@ export class Parser {
       let tok = this._t.peek();
 
       let wsChunk = '';
+      let lastWsTok = null;
       while (isWhitespace(tok)) {
         wsChunk += tok.contents;
+        lastWsTok = tok;
         this._t.next();
         tok = this._t.peek();
       }
@@ -219,18 +221,21 @@ export class Parser {
         // In lists we don't need to bother representing trailing whitespace
         if (!opts.inList) {
           contents += wsChunk;
+          lastRealTok = lastWsTok;
         }
 
         break;
       }
-      if (tok.name === 'opaqueTag' || tok.name === 'comment') {
-        contents += wsChunk;
-        break;
-      }
-
-      lastRealTok = tok;
 
       contents += wsChunk;
+
+      if (lastWsTok !== null) {
+        lastRealTok = lastWsTok;
+      }
+
+      if (tok.name === 'opaqueTag' || tok.name === 'comment' || tok.name === 'tag') {
+        break;
+      }
 
       if (isFormatToken(tok)) {
         // check if format token is valid
@@ -254,16 +259,7 @@ export class Parser {
         }
       }
 
-      //  TODO why is this not with the earlier break?
-      if (tok.name === 'tag') {
-        break;
-      }
-
-      if (tok.name === 'text' || isWhitespace(tok)) {
-        contents += tok.contents;
-        this._t.next();
-        continue;
-      }
+      lastRealTok = tok;
 
       // By default just take the token's contents
       contents += tok.contents;
@@ -292,46 +288,50 @@ export class Parser {
       contents = this.parseFragment(opts, format);
     }
 
-    const endTok = this._t.peek();
-    const pos = this.getPos(startTok);
-    const end = this.getPos(endTok);
+    const nextTok = this._t.peek();
+    const start = this.getPos(startTok);
 
     // fragment ended but we don't have a close format. Convert this node into a text node.
-    if (endTok.name !== format) {
-      unshiftOrJoin(contents, this.finish({ name: 'text', contents: startTok.contents }, pos, end));
+    if (nextTok.name !== format) {
+      const lastTok = contents[contents.length - 1] ?? startTok;
+      unshiftOrJoin(
+        contents,
+        this.finish({ name: 'text', contents: startTok.contents }, start, lastTok.location.end)
+      );
       return contents;
-    } else {
-      this._t.next(); // consume end format.
+    }
 
-      if (contents.length === 0) {
-        // empty formats not allowed
-        return [
-          this.finish({ name: 'text', contents: startTok.contents + endTok.contents }, pos, end),
-        ];
-      } else if (format === 'tick') {
-        contents = contents.map(child =>
-          child.name === 'tag'
-            ? { ...child, name: 'text', contents: escapeHtml(child.contents) }
-            : child
-        );
-      } else if (format === 'pipe') {
-        const ntNode = parseNonTerminal(contents[0].contents);
+    const end = nextTok.location.end;
+    this._t.next(); // consume end format.
 
-        if (ntNode === null) {
-          // failed to parse a non-terminal, so convert to text.
-          const firstPos = this.getPos(contents[0]);
-          const lastEnd = this.getEnd(contents[contents.length - 1]);
-          unshiftOrJoin(contents, this.finish({ name: 'text', contents: '|' }, pos, firstPos));
-          pushOrJoin(contents, this.finish({ name: 'text', contents: '|' }, lastEnd, end));
+    if (contents.length === 0) {
+      // empty formats not allowed
+      return [
+        this.finish({ name: 'text', contents: startTok.contents + nextTok.contents }, start, end),
+      ];
+    } else if (format === 'tick') {
+      contents = contents.map(child =>
+        child.name === 'tag'
+          ? { ...child, name: 'text', contents: escapeHtml(child.contents) }
+          : child
+      );
+    } else if (format === 'pipe') {
+      const ntNode = parseNonTerminal(contents[0].contents);
 
-          return contents;
-        } else {
-          return [this.finish(ntNode, pos, end)];
-        }
+      if (ntNode === null) {
+        // failed to parse a non-terminal, so convert to text.
+        const firstPos = this.getPos(contents[0]);
+        const lastEnd = this.getEnd(contents[contents.length - 1]);
+        unshiftOrJoin(contents, this.finish({ name: 'text', contents: '|' }, start, firstPos));
+        pushOrJoin(contents, this.finish({ name: 'text', contents: '|' }, lastEnd, end));
+
+        return contents;
+      } else {
+        return [this.finish(ntNode, start, end)];
       }
     }
 
-    return [this.finish({ name: format, contents }, pos, end)];
+    return [this.finish({ name: format, contents }, start, end)];
   }
 
   pushPos() {
