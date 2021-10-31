@@ -82,12 +82,7 @@ export class Tokenizer {
         out += chr;
         this.pos++;
       } else if (chr === '<') {
-        const commentMatch = this.tryScanComment();
-        if (commentMatch) {
-          this.pos -= commentMatch.length;
-          break;
-        }
-        if (this.tryScanTag()) {
+        if (this.tryScanComment() || this.tryScanTag()) {
           break;
         }
 
@@ -135,13 +130,13 @@ export class Tokenizer {
     return match;
   }
 
+  // does not actually consume the comment
+  // you should manually `this.pos += comment.length;` if you end up consuming it
   tryScanComment() {
     const match = this.str.slice(this.pos).match(commentRegexp);
     if (!match) {
       return;
     }
-
-    this.pos += match[0].length;
 
     return match[0];
   }
@@ -225,6 +220,7 @@ export class Tokenizer {
           const comment = this.tryScanComment();
 
           if (comment) {
+            this.pos += comment.length;
             this.enqueue({ name: 'comment', contents: ws + comment }, start);
             // this._newline = true;
             return;
@@ -292,6 +288,7 @@ export class Tokenizer {
             ) {
               const comment = this.tryScanComment();
               if (comment) {
+                this.pos += comment.length;
                 this.enqueue({ name: 'comment', contents: comment }, start);
                 return;
               }
