@@ -3,7 +3,7 @@ const assert = require('assert');
 const { parseAlgorithm, parseFragment } = require('../');
 
 describe('Parser', function () {
-  it('tracks positions 1', function () {
+  it('tracks positions in algorithms', function () {
     const baseSource = '  1. [id="thing"] a\n  2. b c';
     const assertNodeLocation = makeAssertLocation(baseSource);
     const algorithm = parseAlgorithm(baseSource);
@@ -18,7 +18,7 @@ describe('Parser', function () {
     assertNodeLocation(item1.contents[0], 'b c');
   });
 
-  it('tracks positions 2', function () {
+  it('tracks positions in fragments', function () {
     const baseSource = 'Text |Nonterminal?| *format* text.';
     const assertNodeLocation = makeAssertLocation(baseSource);
     const fragments = parseFragment(baseSource);
@@ -27,6 +27,16 @@ describe('Parser', function () {
     assertNodeLocation(fragments[2], ' ');
     assertNodeLocation(fragments[3], '*format*');
     assertNodeLocation(fragments[4], ' text.');
+  });
+
+  it('tracks positions with broken formats', function () {
+    for (const sample of ['x _', 'x |', '_x', '|y']) {
+      const baseSource = sample;
+      const assertNodeLocation = makeAssertLocation(baseSource);
+      const fragments = parseFragment(baseSource);
+      assert.strictEqual(fragments.length, 1);
+      assertNodeLocation(fragments[0], sample);
+    }
   });
 
   it('does not consider comments to be text', function () {

@@ -158,7 +158,7 @@ export class Parser {
       } else if (tok.name === 'text' || tok.name === 'whitespace' || tok.name === 'linebreak') {
         let text = this.parseText(opts, closingFormatKind);
         if (text !== null) {
-          frag.push(text);
+          pushOrJoin(frag, text);
         }
       } else if (isFormatToken(tok)) {
         if (closingFormatKind !== undefined) {
@@ -172,7 +172,12 @@ export class Parser {
           }
         } else {
           // valid format
-          frag = frag.concat(this.parseFormat(tok.name, opts));
+          let f = this.parseFormat(tok.name, opts);
+          if (f.length === 1 && f[0].name === 'text') {
+            pushOrJoin(frag, f[0]);
+          } else {
+            frag = frag.concat(f);
+          }
         }
       } else if (tok.name === 'comment' || tok.name === 'tag' || tok.name === 'opaqueTag') {
         frag.push(tok);
@@ -417,6 +422,7 @@ function pushOrJoin(list: Node[], node: Node) {
   const last = list[list.length - 1];
   if (list.length > 0 && last.name === 'text') {
     last.contents += node.contents;
+    last.location.end = node.location.end;
   } else {
     list.push(node);
   }
@@ -427,6 +433,7 @@ function unshiftOrJoin(list: ThingWithContents[], node: ThingWithContents) {
   const first = list[0];
   if (list.length > 0 && first.name === 'text') {
     first.contents = node.contents + first.contents;
+    first.location.start = node.location.start;
   } else {
     list.unshift(node);
   }
