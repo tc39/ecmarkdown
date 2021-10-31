@@ -87,9 +87,7 @@ export class Tokenizer {
           this.pos -= commentMatch.length;
           break;
         }
-        const tagMatch = this.tryScanTag();
-        if (tagMatch) {
-          this.pos -= tagMatch[0].length;
+        if (this.tryScanTag()) {
           break;
         }
 
@@ -103,20 +101,6 @@ export class Tokenizer {
     return out;
   }
 
-  scanToEOL() {
-    let start = this.pos;
-    let len = this.str.length;
-    while (this.pos < len && this.str[this.pos] !== '\n') {
-      this.pos++;
-    }
-
-    if (this.str[this.pos] === '\n') {
-      this.pos++;
-    }
-
-    return this.str.slice(start, this.pos);
-  }
-
   scanToEndTag(endTag: string) {
     let start = this.pos;
     let len = this.str.length;
@@ -124,6 +108,7 @@ export class Tokenizer {
       const tag = this.tryScanTag();
 
       if (tag) {
+        this.pos += tag[0].length;
         if (tag[1] === endTag && tag[0][1] === '/') {
           break;
         }
@@ -135,6 +120,8 @@ export class Tokenizer {
     return this.str.slice(start, this.pos);
   }
 
+  // does not actually consume the tag
+  // you should manually `this.pos += tag[0].length;` if you end up consuming it
   tryScanTag() {
     if (this.str[this.pos] !== '<') {
       return;
@@ -144,8 +131,6 @@ export class Tokenizer {
     if (!match) {
       return;
     }
-
-    this.pos += match[0].length;
 
     return match;
   }
@@ -222,13 +207,16 @@ export class Tokenizer {
 
           if (tag) {
             if (opaqueTags.has(tag[1]) && tag[2] !== '/') {
+              this.pos += tag[0].length;
               const rest = this.scanToEndTag(tag[1]);
               this.enqueue({ name: 'opaqueTag', contents: ws + tag[0] + rest }, start);
             } else {
               if (ws.length > 0) {
                 this.enqueue({ name: 'whitespace', contents: ws }, start);
               }
-              this.enqueue({ name: 'tag', contents: tag[0] }, start);
+              const tagStart = this.getLocation();
+              this.pos += tag[0].length;
+              this.enqueue({ name: 'tag', contents: tag[0] }, tagStart);
             }
 
             return;
@@ -310,6 +298,7 @@ export class Tokenizer {
             } else {
               const tag = this.tryScanTag();
               if (tag) {
+                this.pos += tag[0].length;
                 if (opaqueTags.has(tag[1]) && tag[2] !== '/') {
                   const rest = this.scanToEndTag(tag[1]);
                   this.enqueue({ name: 'opaqueTag', contents: tag[0] + rest }, start);
