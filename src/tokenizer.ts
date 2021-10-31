@@ -74,7 +74,6 @@ export class Tokenizer {
     let chr;
 
     while (this.pos < len) {
-      const start = this.getLocation();
       chr = this.str[this.pos];
 
       if (chr === '\\') {
@@ -83,22 +82,14 @@ export class Tokenizer {
         out += chr;
         this.pos++;
       } else if (chr === '<') {
-        const tag = this.tryScanTag();
-
-        if (tag) {
-          if (opaqueTags.has(tag[1]) && tag[2] !== '/') {
-            const rest = this.scanToEndTag(tag[1]);
-            this.enqueueLookahead({ name: 'opaqueTag', contents: tag[0] + rest }, start);
-          } else {
-            this.enqueueLookahead({ name: 'tag', contents: tag[0] }, start);
-          }
+        const commentMatch = this.tryScanComment();
+        if (commentMatch) {
+          this.pos -= commentMatch.length;
           break;
         }
-
-        const comment = this.tryScanComment();
-
-        if (comment) {
-          this.enqueueLookahead({ name: 'comment', contents: comment }, start);
+        const tagMatch = this.tryScanTag();
+        if (tagMatch) {
+          this.pos -= tagMatch[0].length;
           break;
         }
 
@@ -146,16 +137,6 @@ export class Tokenizer {
 
   tryScanTag() {
     if (this.str[this.pos] !== '<') {
-      return;
-    }
-
-    // TODO: handle directives like <! doctype...>
-    if (
-      this.pos + 1 < this.str.length &&
-      this.str[this.pos + 1] !== '/' &&
-      this.str[this.pos + 1] !== '!' &&
-      !this.str[this.pos + 1].match(/\w/)
-    ) {
       return;
     }
 
@@ -357,11 +338,6 @@ export class Tokenizer {
       line: this.line,
       column: this.column,
     };
-  }
-
-  enqueueLookahead(tok: Unlocated<Token>, pos: Position) {
-    this.locate(tok, pos);
-    this._lookahead.push(tok);
   }
 
   enqueue(tok: Unlocated<Token>, pos: Position) {

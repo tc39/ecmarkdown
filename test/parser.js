@@ -19,14 +19,19 @@ describe('Parser', function () {
   });
 
   it('tracks positions in fragments', function () {
-    const baseSource = 'Text |Nonterminal?| *format* text.';
+    const baseSource = 'Text |Nonterminal?| *format* x<sup>10</sup>.';
     const assertNodeLocation = makeAssertLocation(baseSource);
     const fragments = parseFragment(baseSource);
+    assert.strictEqual(fragments.length, 9);
     assertNodeLocation(fragments[0], 'Text ');
     assertNodeLocation(fragments[1], '|Nonterminal?|');
     assertNodeLocation(fragments[2], ' ');
     assertNodeLocation(fragments[3], '*format*');
-    assertNodeLocation(fragments[4], ' text.');
+    assertNodeLocation(fragments[4], ' x');
+    assertNodeLocation(fragments[5], '<sup>');
+    assertNodeLocation(fragments[6], '10');
+    assertNodeLocation(fragments[7], '</sup>');
+    assertNodeLocation(fragments[8], '.');
   });
 
   it('tracks positions with broken formats', function () {
