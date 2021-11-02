@@ -226,7 +226,9 @@ export class Parser {
         // In lists we don't need to bother representing trailing whitespace
         if (!opts.inList) {
           contents += wsChunk;
-          lastRealTok = lastWsTok;
+          if (lastWsTok !== null) {
+            lastRealTok = lastWsTok;
+          }
         }
 
         break;
