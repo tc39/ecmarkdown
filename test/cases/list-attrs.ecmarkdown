@@ -1,0 +1,8 @@
+1. [id="foo"] Item
+1. Item
+1. Item
+  1. [attr="bar"] Item
+  1. Item
+1. Item
+  * Unordered item
+  * [thing-one="baz", thing-two="quux"] Unordered item

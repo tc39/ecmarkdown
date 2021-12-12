@@ -104,8 +104,8 @@ export class Emitter {
   }
 
   emitListItem(li: OrderedListItemNode | UnorderedListItemNode) {
-    let id = li.id === null ? '' : ` id="${li.id}"`;
-    this.str += `<li${id}>`;
+    const attrs = li.attrs.map(a => ` ${a.key}=${JSON.stringify(a.value)}`).join('');
+    this.str += `<li${attrs}>`;
     this.emitFragment(li.contents);
     if (li.sublist !== null) {
       if (li.sublist.name === 'ol') {

@@ -1,8 +1,0 @@
-1. [id="foo"] Item
-1. Item
-1. Item
-  1. [id="bar"] Item
-  1. Item
-1. Item
-  * Unordered item
-  * [id="baz"] Unordered item

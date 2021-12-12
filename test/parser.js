@@ -58,7 +58,7 @@ describe('Parser', function () {
         contents: [
           {
             name: 'ordered-list-item',
-            id: null,
+            attrs: [],
             contents: [
               {
                 contents: 'Foo. ',

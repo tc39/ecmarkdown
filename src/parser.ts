@@ -114,7 +114,7 @@ export class Parser {
     // consume list token
     this._t.next();
 
-    const id = this._t.tryScanId();
+    const attrs = this._t.tryScanListItemAttributes();
 
     const contents: FragmentNode[] = this.parseFragment({ inList: true });
 
@@ -132,7 +132,7 @@ export class Parser {
 
     let name: 'ordered-list-item' | 'unordered-list-item' =
       kind === 'ol' ? 'ordered-list-item' : 'unordered-list-item';
-    return this.finish({ name, contents, sublist, id: id == null ? null : id.value });
+    return this.finish({ name, contents, sublist, attrs });
   }
 
   parseFragment(opts: ParseFragmentOpts): FragmentNode[];

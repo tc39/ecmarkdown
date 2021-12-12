@@ -83,8 +83,9 @@ export type OrderedListToken = {
   location: LocationRange;
 };
 
-export type IdToken = {
-  name: 'id';
+export type AttrToken = {
+  name: 'attr';
+  key: string;
   value: string;
   location: LocationRange;
 };
@@ -188,7 +189,7 @@ export type UnorderedListItemNode = {
   name: 'unordered-list-item';
   contents: FragmentNode[];
   sublist: ListNode | null;
-  id: string | null;
+  attrs: { key: string; value: string }[];
   location: LocationRange;
 };
 
@@ -196,7 +197,7 @@ export type OrderedListItemNode = {
   name: 'ordered-list-item';
   contents: FragmentNode[];
   sublist: ListNode | null;
-  id: string | null;
+  attrs: { key: string; value: string }[];
   location: LocationRange;
 };
 
