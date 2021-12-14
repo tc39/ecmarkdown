@@ -1,8 +1,8 @@
-import type { Unlocated, Token, IdToken, Position } from './node-types';
+import type { Unlocated, Token, AttrToken, Position } from './node-types';
 
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+[\w]+(\s*=\s*("[^"]*"|'[^']*'|[^><"'=``]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
-const idRegexp = /^\[id="([\w-]+)"] /;
+const attrRegexp = /^\[ *[\w-]+ *= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*" *(?:, *[\w-]+ *= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*" *)*] /;
 const digitRegexp = /\d/;
 
 const opaqueTags = new Set(['emu-grammar', 'emu-production', 'pre', 'code', 'script', 'style']);
@@ -141,21 +141,38 @@ export class Tokenizer {
     return match[0];
   }
 
-  // ID tokens are only valid immediately after list tokens, so we let this be called by the parser.
-  tryScanId() {
-    const match = this.str.slice(this.pos).match(idRegexp);
+  // attribute tokens are only valid immediately after list tokens, so we let this be called by the parser.
+  tryScanListItemAttributes() {
+    const match = this.str.slice(this.pos).match(attrRegexp);
     if (!match) {
-      return null;
+      return [];
     }
 
-    const start = this.getLocation();
-
-    this.pos += match[0].length;
-
-    let token: Unlocated<IdToken> = { name: 'id', value: match[1] };
-    this.locate(token, start);
-
-    return token;
+    const parts = match[0].matchAll(
+      /([\w-]+) *= *("(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*")/g
+    );
+    const tokens = [];
+    let offset = 0;
+    for (const { 0: part, 1: key, 2: value, index } of parts) {
+      this.pos += index! - offset;
+      // updating column manually is kind of cheating, but whatever
+      // it only works because we know attributes can't contain linebreaks
+      // doing this allows us to avoid having tokens for the `,` and the ` ` between attributes
+      this.column += index! - offset;
+      const tokStart = this.getLocation();
+      const tok: Unlocated<AttrToken> = {
+        name: 'attr',
+        key,
+        value: JSON.parse(value),
+      };
+      this.pos += part.length;
+      this.locate(tok, tokStart);
+      offset = index! + part.length;
+      tokens.push(tok);
+    }
+    this.pos += match[0].length - offset;
+    this.column += match[0].length - offset;
+    return tokens;
   }
 
   // Attempts to match any of the tokens at the given index of str
@@ -370,8 +387,8 @@ export class Tokenizer {
   // This is kind of an abuse of "asserts": we're not _asserting_ that `tok` has `location`, but rather arranging that this be so.
   // I don't think TS has a good way to model that, though.
   locate(tok: Unlocated<Token>, startPos: Position): asserts tok is Token;
-  locate(tok: Unlocated<IdToken>, startPos: Position): asserts tok is IdToken;
-  locate(tok: Unlocated<Token | IdToken>, startPos: Position) {
+  locate(tok: Unlocated<AttrToken>, startPos: Position): asserts tok is AttrToken;
+  locate(tok: Unlocated<Token | AttrToken>, startPos: Position) {
     if (tok.name === 'linebreak') {
       this.column = 1;
       ++this.line;

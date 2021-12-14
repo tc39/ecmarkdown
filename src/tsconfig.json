@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2018",
+    "target": "es2019",
     "module": "commonjs",
     "esModuleInterop": true,
     "strict": true,
@@ -8,5 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "../dist",
     "declaration": true,
+    "lib": ["es2020"]
   }
 }

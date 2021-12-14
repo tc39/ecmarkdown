@@ -54,6 +54,7 @@
     ],
     "no-underscore-dangle": "off",
     "no-constant-condition": "off",
+    "no-control-regex": "off",
     "camelcase": [
       "error",
       {
