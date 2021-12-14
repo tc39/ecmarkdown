@@ -148,7 +148,9 @@ export class Tokenizer {
       return [];
     }
 
-    const parts = match[0].matchAll(/([\w-]+) *= *("(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*")/g);
+    const parts = match[0].matchAll(
+      /([\w-]+) *= *("(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*")/g
+    );
     const tokens = [];
     let offset = 0;
     for (const { 0: part, 1: key, 2: value, index } of parts) {
