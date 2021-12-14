@@ -2,7 +2,7 @@ import type { Unlocated, Token, AttrToken, Position } from './node-types';
 
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+[\w]+(\s*=\s*("[^"]*"|'[^']*'|[^><"'=``]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
-const attrRegexp = /^\[ *[\w-]+ *= *"[^"\n]*" *(?:, *[\w-]+ *= *"[^"\n]*" *)*] /;
+const attrRegexp = /^\[ *[\w-]+ *= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*" *(?:, *[\w-]+ *= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*" *)*] /;
 const digitRegexp = /\d/;
 
 const opaqueTags = new Set(['emu-grammar', 'emu-production', 'pre', 'code', 'script', 'style']);
@@ -148,24 +148,24 @@ export class Tokenizer {
       return [];
     }
 
-    const parts = match[0].matchAll(/([\w-]+) *= *"([^"\n]*)"/g);
+    const parts = match[0].matchAll(/([\w-]+) *= *("(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*")/g);
     const tokens = [];
     let offset = 0;
-    for (const part of parts) {
-      this.pos += part.index! - offset;
+    for (const { 0: part, 1: key, 2: value, index } of parts) {
+      this.pos += index! - offset;
       // updating column manually is kind of cheating, but whatever
       // it only works because we know attributes can't contain linebreaks
       // doing this allows us to avoid having tokens for the `,` and the ` ` between attributes
-      this.column += part.index! - offset;
+      this.column += index! - offset;
       const tokStart = this.getLocation();
       const tok: Unlocated<AttrToken> = {
         name: 'attr',
-        key: part[1],
-        value: part[2],
+        key,
+        value: JSON.parse(value),
       };
-      this.pos += part[0].length;
+      this.pos += part.length;
       this.locate(tok, tokStart);
-      offset = part.index! + part[0].length;
+      offset = index! + part.length;
       tokens.push(tok);
     }
     this.pos += match[0].length - offset;
