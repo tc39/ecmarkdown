@@ -324,6 +324,7 @@ describe('Token:', function () {
         '<tag attr=">">',
         '<tag attr="\'">',
         "<tag attr='foo'>",
+        "<tag dashed-attr='foo'>",
       ];
 
       validTags.forEach(function (tag) {

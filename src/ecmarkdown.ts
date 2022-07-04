@@ -9,6 +9,7 @@ export type {
   TickNode,
   TildeNode,
   PipeNode,
+  FragmentNode,
   FormatNode,
   UnorderedListNode,
   OrderedListNode,
