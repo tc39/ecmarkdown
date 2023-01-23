@@ -59,6 +59,7 @@ describe('Parser', function () {
           {
             name: 'ordered-list-item',
             attrs: [],
+            contentsIndent: 3,
             contents: [
               {
                 contents: 'Foo. ',

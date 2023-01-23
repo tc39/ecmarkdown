@@ -188,6 +188,7 @@ export type OrderedListNode = {
 export type UnorderedListItemNode = {
   name: 'unordered-list-item';
   contents: FragmentNode[];
+  contentsIndent: number;
   sublist: ListNode | null;
   attrs: { key: string; value: string; location: LocationRange }[];
   location: LocationRange;
@@ -196,6 +197,7 @@ export type UnorderedListItemNode = {
 export type OrderedListItemNode = {
   name: 'ordered-list-item';
   contents: FragmentNode[];
+  contentsIndent: number;
   sublist: ListNode | null;
   attrs: { key: string; value: string; location: LocationRange }[];
   location: LocationRange;

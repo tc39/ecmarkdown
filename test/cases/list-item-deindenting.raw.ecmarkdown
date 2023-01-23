@@ -1,0 +1,22 @@
+1. Item 1
+  1. Item 1a
+     (multi-line)
+  1. Item 1b
+     (also multi-line)
+       ...and extra-indented
+1. Item 2
+    1. Item 2a
+       (multi-line)
+    1. Item 2b
+       (also multi-line)
+         ...and extra-indented
+1. Item 3
+  (multi-line but under-indented)
+1. Item 4
+  * unordered item
+    (multi-line)
+  * unordered item
+      (multi-line and extra-indented)
+    ...partially
+  * unordered item
+   (multi-line and under-indented)
