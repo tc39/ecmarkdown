@@ -130,7 +130,7 @@ export class Emitter {
   }
 
   emitFieldOrSlot(node: DoubleBracketsNode) {
-    this.wrapFragment('var', node.contents, ' class="field"');
+    this.str += `<var class="field">${node.contents}</var>`;
   }
 
   emitTag(tag: OpaqueTagNode | CommentNode | TagNode) {

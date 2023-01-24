@@ -457,17 +457,9 @@ function isWhitespace(chr: string) {
 }
 
 function isChars(chr: string) {
-  return !isFormat(chr) && chr !== '\n' && chr !== ' ' && chr !== '\t';
+  return !isFormat(chr) && chr !== '\n' && chr !== ' ' && chr !== '\t' && chr !== '[';
 }
 
 function isFormat(chr: string) {
-  return (
-    chr === '*' ||
-    chr === '_' ||
-    chr === '`' ||
-    chr === '[' ||
-    chr === '<' ||
-    chr === '|' ||
-    chr === '~'
-  );
+  return chr === '*' || chr === '_' || chr === '`' || chr === '<' || chr === '|' || chr === '~';
 }

@@ -21,7 +21,7 @@ export type EOFToken = {
   location: LocationRange;
 };
 
-export type Format = 'star' | 'underscore' | 'tick' | 'pipe' | 'tilde' | 'double-brackets';
+export type Format = 'star' | 'underscore' | 'tick' | 'pipe' | 'tilde';
 
 export type FormatToken = {
   name: Format;
@@ -43,6 +43,12 @@ export type LinebreakToken = {
 
 export type WhitespaceToken = {
   name: 'whitespace';
+  contents: string;
+  location: LocationRange;
+};
+
+export type DoubleBracketsToken = {
+  name: 'double-brackets';
   contents: string;
   location: LocationRange;
 };
@@ -96,6 +102,7 @@ export type Token =
   | ParabreakToken
   | LinebreakToken
   | WhitespaceToken
+  | DoubleBracketsToken
   | TextToken
   | CommentToken
   | TagToken
@@ -170,17 +177,11 @@ export type PipeNode = {
 
 export type DoubleBracketsNode = {
   name: 'double-brackets';
-  contents: FragmentNode[];
+  contents: string;
   location: LocationRange;
 };
 
-export type FormatNode =
-  | StarNode
-  | UnderscoreNode
-  | TickNode
-  | TildeNode
-  | PipeNode
-  | DoubleBracketsNode;
+export type FormatNode = StarNode | UnderscoreNode | TickNode | TildeNode | PipeNode;
 
 export type UnorderedListNode = {
   name: 'ul';
@@ -213,7 +214,13 @@ export type OrderedListItemNode = {
   location: LocationRange;
 };
 
-export type FragmentNode = TextNode | FormatNode | CommentNode | TagNode | OpaqueTagNode;
+export type FragmentNode =
+  | TextNode
+  | FormatNode
+  | CommentNode
+  | TagNode
+  | OpaqueTagNode
+  | DoubleBracketsNode;
 
 export type ListNode = UnorderedListNode | OrderedListNode;
 
@@ -223,9 +230,9 @@ export type Node =
   | CommentNode
   | AlgorithmNode
   | TextNode
+  | DoubleBracketsNode
   | StarNode
   | UnderscoreNode
-  | DoubleBracketsNode
   | TickNode
   | TildeNode
   | PipeNode

@@ -180,7 +180,12 @@ export class Parser {
             frag = frag.concat(f);
           }
         }
-      } else if (tok.name === 'comment' || tok.name === 'tag' || tok.name === 'opaqueTag') {
+      } else if (
+        tok.name === 'comment' ||
+        tok.name === 'tag' ||
+        tok.name === 'opaqueTag' ||
+        tok.name === 'double-brackets'
+      ) {
         frag.push(tok);
         this._t.next();
       } else if (isList(tok)) {
@@ -241,15 +246,20 @@ export class Parser {
         lastRealTok = lastWsTok;
       }
 
-      if (tok.name === 'opaqueTag' || tok.name === 'comment' || tok.name === 'tag') {
+      if (
+        tok.name === 'opaqueTag' ||
+        tok.name === 'comment' ||
+        tok.name === 'tag' ||
+        tok.name === 'double-brackets'
+      ) {
         break;
       }
 
       if (isFormatToken(tok)) {
         // check if format token is valid
         //
-        // tick and field/slot are always valid
-        if (tok.name === 'tick' || tok.name === 'double-brackets') {
+        // tick is always valid
+        if (tok.name === 'tick') {
           break;
         }
 
@@ -292,12 +302,7 @@ export class Parser {
     const start = this.getPos(startTok);
     let contents: (TextNode | CommentNode | TagNode)[] = [];
 
-    if (format === 'double-brackets') {
-      // the tokenizer emits fields/slots as complete `[[...]]` tokens, which are preserved here
-      const location = { start, end: this.getPos() };
-      const text = { name: 'text', contents: startTok.contents, location };
-      return [{ name: format, contents: [text as TextNode], location }];
-    } else if (format === 'underscore') {
+    if (format === 'underscore') {
       if (this._t.peek().name === 'text') {
         contents = [this._t.next() as TextNode];
       }
@@ -400,8 +405,7 @@ function isFormatToken(tok: Token): tok is FormatToken {
     tok.name === 'underscore' ||
     tok.name === 'tilde' ||
     tok.name === 'tick' ||
-    tok.name === 'pipe' ||
-    tok.name === 'double-brackets'
+    tok.name === 'pipe'
   );
 }
 
@@ -423,7 +427,7 @@ function isList(tok: Token): tok is OrderedListToken | UnorderedListToken {
 // Backtick can work anywhere, other format tokens have more stringent requirements.
 // This aligns with gmd semantics.
 function isValidStartFormat(prev: NotEOFToken, cur: Token, next: Token) {
-  if (cur.name === 'tick' || cur.name === 'double-brackets') {
+  if (cur.name === 'tick') {
     return true;
   }
 
@@ -431,7 +435,7 @@ function isValidStartFormat(prev: NotEOFToken, cur: Token, next: Token) {
 }
 
 function isValidEndFormat(prev: Token, cur: Token) {
-  if (cur.name === 'tick' || cur.name === 'double-brackets') {
+  if (cur.name === 'tick') {
     return true;
   }
 
