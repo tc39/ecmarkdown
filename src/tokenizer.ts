@@ -1,6 +1,6 @@
 import type { Unlocated, Token, AttrToken, Position } from './node-types';
 
-const fieldOrSlotRegexp = /^\[\[[a-zA-Z0-9_%]+\]\]/;
+const fieldOrSlotRegexp = /^\[\[[a-zA-Z0-9_]+\]\]/;
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+\w[\w-]*(\s*=\s*("[^"]*"|'[^']*'|[^><"'=`]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
 const attrRegexp = /^\[ *[\w-]+ *= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*" *(?:, *[\w-]+ *= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*" *)*] /;
