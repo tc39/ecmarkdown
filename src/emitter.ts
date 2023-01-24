@@ -7,6 +7,7 @@ import type {
   TagNode,
   UnderscoreNode,
   StarNode,
+  DoubleBracketsNode,
   OrderedListItemNode,
   UnorderedListItemNode,
   OrderedListNode,
@@ -72,6 +73,9 @@ export class Emitter {
       case 'tilde':
         this.emitTilde(node);
         break;
+      case 'double-brackets':
+        this.emitFieldOrSlot(node);
+        break;
       case 'comment':
       case 'tag':
       case 'opaqueTag':
@@ -125,6 +129,10 @@ export class Emitter {
     this.str += `<var>${node.contents}</var>`;
   }
 
+  emitFieldOrSlot(node: DoubleBracketsNode) {
+    this.wrapFragment('var', node.contents, ' class="field"');
+  }
+
   emitTag(tag: OpaqueTagNode | CommentNode | TagNode) {
     this.str += tag.contents;
   }
@@ -159,9 +167,9 @@ export class Emitter {
     this.str += '>' + pipe.nonTerminal + '</emu-nt>';
   }
 
-  wrapFragment(wrapping: string, fragment: Node[]) {
-    this.str += `<${wrapping}>`;
+  wrapFragment(tagName: string, fragment: Node[], attrs: string = '') {
+    this.str += `<${tagName}${attrs}>`;
     this.emitFragment(fragment);
-    this.str += `</${wrapping}>`;
+    this.str += `</${tagName}>`;
   }
 }

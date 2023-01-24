@@ -1,5 +1,6 @@
 import type { Unlocated, Token, AttrToken, Position } from './node-types';
 
+const fieldOrSlotRegexp = /^\[\[(?:[^\\\]]|\\.)+\]\]/;
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+\w[\w-]*(\s*=\s*("[^"]*"|'[^']*'|[^><"'=`]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
 const attrRegexp = /^\[ *[\w-]+ *= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*" *(?:, *[\w-]+ *= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*" *)*] /;
@@ -81,6 +82,13 @@ export class Tokenizer {
       } else if (isChars(chr)) {
         out += chr;
         this.pos++;
+      } else if (chr === '[') {
+        if (this.tryScanFieldOrSlot()) {
+          break;
+        }
+
+        out += chr;
+        this.pos++;
       } else if (chr === '<') {
         if (this.tryScanComment() || this.tryScanTag()) {
           break;
@@ -115,13 +123,20 @@ export class Tokenizer {
     return this.str.slice(start, this.pos);
   }
 
-  // does not actually consume the tag
-  // you should manually `this.pos += tag[0].length;` if you end up consuming it
-  tryScanTag() {
-    if (this.str[this.pos] !== '<') {
+  // does not actually consume the field/slot
+  // you should manually `this.pos += result.length;` if you end up consuming it
+  tryScanFieldOrSlot() {
+    const match = this.str.slice(this.pos).match(fieldOrSlotRegexp);
+    if (!match) {
       return;
     }
 
+    return match[0];
+  }
+
+  // does not actually consume the tag
+  // you should manually `this.pos += tag[0].length;` if you end up consuming it
+  tryScanTag() {
     const match = this.str.slice(this.pos).match(tagRegexp);
     if (!match) {
       return;
@@ -297,6 +312,16 @@ export class Tokenizer {
           } else if (isChars(chr)) {
             this.enqueue({ name: 'text', contents: this.scanChars() }, start);
             return;
+          } else if (chr === '[') {
+            const fieldOrSlot = this.tryScanFieldOrSlot();
+            if (fieldOrSlot) {
+              this.pos += fieldOrSlot.length;
+              this.enqueue({ name: 'double-brackets', contents: fieldOrSlot }, start);
+              return;
+            }
+
+            // didn't find a valid field/slot, so fall back to text.
+            this.enqueue({ name: 'text', contents: this.scanChars() }, start);
           } else if (chr === '<') {
             if (
               this.str[this.pos + 1] === '!' &&
@@ -436,5 +461,13 @@ function isChars(chr: string) {
 }
 
 function isFormat(chr: string) {
-  return chr === '*' || chr === '_' || chr === '`' || chr === '<' || chr === '|' || chr === '~';
+  return (
+    chr === '*' ||
+    chr === '_' ||
+    chr === '`' ||
+    chr === '[' ||
+    chr === '<' ||
+    chr === '|' ||
+    chr === '~'
+  );
 }

@@ -11,6 +11,7 @@ const childKeys = {
   tick: ['contents'],
   tilde: ['contents'],
   pipe: [],
+  'double-brackets': ['contents'],
   ul: ['contents'],
   ol: ['contents'],
   'ordered-list-item': ['contents', 'sublist'],

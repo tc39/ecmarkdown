@@ -248,8 +248,8 @@ export class Parser {
       if (isFormatToken(tok)) {
         // check if format token is valid
         //
-        // tick is always valid
-        if (tok.name === 'tick') {
+        // tick and field/slot are always valid
+        if (tok.name === 'tick' || tok.name === 'double-brackets') {
           break;
         }
 
@@ -289,9 +289,15 @@ export class Parser {
     opts: ParseFragmentOpts
   ): (TextNode | CommentNode | TagNode | FormatNode)[] {
     const startTok = this._t.next() as FormatToken;
+    const start = this.getPos(startTok);
     let contents: (TextNode | CommentNode | TagNode)[] = [];
 
-    if (format === 'underscore') {
+    if (format === 'double-brackets') {
+      // the tokenizer emits fields/slots as complete `[[...]]` tokens, which are preserved here
+      const location = { start, end: this.getPos() };
+      const text = { name: 'text', contents: startTok.contents, location };
+      return [{ name: format, contents: [text as TextNode], location }];
+    } else if (format === 'underscore') {
       if (this._t.peek().name === 'text') {
         contents = [this._t.next() as TextNode];
       }
@@ -300,7 +306,6 @@ export class Parser {
     }
 
     const nextTok = this._t.peek();
-    const start = this.getPos(startTok);
 
     // fragment ended but we don't have a close format. Convert this node into a text node.
     if (nextTok.name !== format) {
@@ -395,7 +400,8 @@ function isFormatToken(tok: Token): tok is FormatToken {
     tok.name === 'underscore' ||
     tok.name === 'tilde' ||
     tok.name === 'tick' ||
-    tok.name === 'pipe'
+    tok.name === 'pipe' ||
+    tok.name === 'double-brackets'
   );
 }
 
@@ -417,7 +423,7 @@ function isList(tok: Token): tok is OrderedListToken | UnorderedListToken {
 // Backtick can work anywhere, other format tokens have more stringent requirements.
 // This aligns with gmd semantics.
 function isValidStartFormat(prev: NotEOFToken, cur: Token, next: Token) {
-  if (cur.name === 'tick') {
+  if (cur.name === 'tick' || cur.name === 'double-brackets') {
     return true;
   }
 
@@ -425,7 +431,7 @@ function isValidStartFormat(prev: NotEOFToken, cur: Token, next: Token) {
 }
 
 function isValidEndFormat(prev: Token, cur: Token) {
-  if (cur.name === 'tick') {
+  if (cur.name === 'tick' || cur.name === 'double-brackets') {
     return true;
   }
 

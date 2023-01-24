@@ -21,7 +21,7 @@ export type EOFToken = {
   location: LocationRange;
 };
 
-export type Format = 'star' | 'underscore' | 'tick' | 'pipe' | 'tilde';
+export type Format = 'star' | 'underscore' | 'tick' | 'pipe' | 'tilde' | 'double-brackets';
 
 export type FormatToken = {
   name: Format;
@@ -168,7 +168,19 @@ export type PipeNode = {
   location: LocationRange;
 };
 
-export type FormatNode = StarNode | UnderscoreNode | TickNode | TildeNode | PipeNode;
+export type DoubleBracketsNode = {
+  name: 'double-brackets';
+  contents: FragmentNode[];
+  location: LocationRange;
+};
+
+export type FormatNode =
+  | StarNode
+  | UnderscoreNode
+  | TickNode
+  | TildeNode
+  | PipeNode
+  | DoubleBracketsNode;
 
 export type UnorderedListNode = {
   name: 'ul';
@@ -213,6 +225,7 @@ export type Node =
   | TextNode
   | StarNode
   | UnderscoreNode
+  | DoubleBracketsNode
   | TickNode
   | TildeNode
   | PipeNode
