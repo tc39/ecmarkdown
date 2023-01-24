@@ -71,6 +71,8 @@ Inside a paragraph, list item, or header, the following inline formatting elemen
 
 **Variables** are written as `_x_` and are translated to `<var>x</var>`. Variables cannot contain whitespace or other formatting characters.
 
+**Fields** are written as `[[f]]` and are translated as `<var class="field">[[f]]</var>`. Field names must match `/[a-zA-Z0-9_]+/`.
+
 **Values** are written as `*x*` and are translated to `<emu-val>x</emu-val>`. Values cannot contain asterisks.
 
 **Code** is written as `` `x` `` and is translated to `<code>x</code>`. Code cannot contain backticks.
