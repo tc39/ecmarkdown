@@ -341,8 +341,14 @@ export class Parser {
         return [this.finish(ntNode, start, end)];
       }
     } else if (format === 'underscore') {
-      // the cast is justified by the check at the start of this function
-      return [this.finish({ name: format, contents: contents as [TextNode] }, start, end)];
+      return [
+        this.finish(
+          // the cast is justified by the check at the start of this function
+          { name: 'underscore', contents: (contents as [TextNode])[0].contents },
+          start,
+          end
+        ),
+      ];
     }
 
     return [this.finish({ name: format, contents }, start, end)];

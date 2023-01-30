@@ -143,7 +143,7 @@ export type StarNode = {
 
 export type UnderscoreNode = {
   name: 'underscore';
-  contents: [TextNode];
+  contents: string;
   location: LocationRange;
 };
 
