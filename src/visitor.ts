@@ -7,7 +7,7 @@ const childKeys = {
   algorithm: ['contents'],
   text: [],
   star: ['contents'],
-  underscore: ['contents'],
+  underscore: [],
   tick: ['contents'],
   tilde: ['contents'],
   pipe: [],
