@@ -20,6 +20,7 @@ import type {
   OrderedListNode,
   OrderedListItemNode,
   UnorderedListItemNode,
+  FormatNode,
 } from './node-types';
 
 // TODO types for escapeHtml
@@ -283,11 +284,14 @@ export class Parser {
     return this.finish({ name: 'text', contents }, undefined, endLoc);
   }
 
-  parseFormat(format: Format, opts: ParseFragmentOpts) {
+  parseFormat(
+    format: Format,
+    opts: ParseFragmentOpts
+  ): (TextNode | CommentNode | TagNode | FormatNode)[] {
     const startTok = this._t.next() as FormatToken;
     let contents: (TextNode | CommentNode | TagNode)[] = [];
 
-    if (startTok.name === 'underscore') {
+    if (format === 'underscore') {
       if (this._t.peek().name === 'text') {
         contents = [this._t.next() as TextNode];
       }
@@ -336,6 +340,15 @@ export class Parser {
       } else {
         return [this.finish(ntNode, start, end)];
       }
+    } else if (format === 'underscore') {
+      return [
+        this.finish(
+          // the cast is justified by the check at the start of this function
+          { name: 'underscore', contents: (contents as [TextNode])[0].contents },
+          start,
+          end
+        ),
+      ];
     }
 
     return [this.finish({ name: format, contents }, start, end)];

@@ -137,25 +137,25 @@ export type TextNode = {
 
 export type StarNode = {
   name: 'star';
-  contents: FragmentNode[];
+  contents: (TextNode | CommentNode | TagNode)[];
   location: LocationRange;
 };
 
 export type UnderscoreNode = {
   name: 'underscore';
-  contents: FragmentNode[];
+  contents: string;
   location: LocationRange;
 };
 
 export type TickNode = {
   name: 'tick';
-  contents: FragmentNode[];
+  contents: (TextNode | CommentNode | TagNode)[];
   location: LocationRange;
 };
 
 export type TildeNode = {
   name: 'tilde';
-  contents: FragmentNode[];
+  contents: (TextNode | CommentNode | TagNode)[];
   location: LocationRange;
 };
 

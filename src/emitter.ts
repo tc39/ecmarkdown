@@ -122,7 +122,7 @@ export class Emitter {
   }
 
   emitUnderscore(node: UnderscoreNode) {
-    this.wrapFragment('var', node.contents);
+    this.str += `<var>${node.contents}</var>`;
   }
 
   emitTag(tag: OpaqueTagNode | CommentNode | TagNode) {
