@@ -6,6 +6,7 @@ const childKeys = {
   comment: [],
   algorithm: ['contents'],
   text: [],
+  'double-brackets': [],
   star: ['contents'],
   underscore: [],
   tick: ['contents'],

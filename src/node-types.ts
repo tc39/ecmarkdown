@@ -47,6 +47,12 @@ export type WhitespaceToken = {
   location: LocationRange;
 };
 
+export type DoubleBracketsToken = {
+  name: 'double-brackets';
+  contents: string;
+  location: LocationRange;
+};
+
 export type TextToken = {
   name: 'text';
   contents: string;
@@ -96,6 +102,7 @@ export type Token =
   | ParabreakToken
   | LinebreakToken
   | WhitespaceToken
+  | DoubleBracketsToken
   | TextToken
   | CommentToken
   | TagToken
@@ -168,6 +175,12 @@ export type PipeNode = {
   location: LocationRange;
 };
 
+export type DoubleBracketsNode = {
+  name: 'double-brackets';
+  contents: string;
+  location: LocationRange;
+};
+
 export type FormatNode = StarNode | UnderscoreNode | TickNode | TildeNode | PipeNode;
 
 export type UnorderedListNode = {
@@ -201,7 +214,13 @@ export type OrderedListItemNode = {
   location: LocationRange;
 };
 
-export type FragmentNode = TextNode | FormatNode | CommentNode | TagNode | OpaqueTagNode;
+export type FragmentNode =
+  | TextNode
+  | FormatNode
+  | CommentNode
+  | TagNode
+  | OpaqueTagNode
+  | DoubleBracketsNode;
 
 export type ListNode = UnorderedListNode | OrderedListNode;
 
@@ -211,6 +230,7 @@ export type Node =
   | CommentNode
   | AlgorithmNode
   | TextNode
+  | DoubleBracketsNode
   | StarNode
   | UnderscoreNode
   | TickNode

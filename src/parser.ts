@@ -180,7 +180,12 @@ export class Parser {
             frag = frag.concat(f);
           }
         }
-      } else if (tok.name === 'comment' || tok.name === 'tag' || tok.name === 'opaqueTag') {
+      } else if (
+        tok.name === 'comment' ||
+        tok.name === 'tag' ||
+        tok.name === 'opaqueTag' ||
+        tok.name === 'double-brackets'
+      ) {
         frag.push(tok);
         this._t.next();
       } else if (isList(tok)) {
@@ -241,7 +246,12 @@ export class Parser {
         lastRealTok = lastWsTok;
       }
 
-      if (tok.name === 'opaqueTag' || tok.name === 'comment' || tok.name === 'tag') {
+      if (
+        tok.name === 'opaqueTag' ||
+        tok.name === 'comment' ||
+        tok.name === 'tag' ||
+        tok.name === 'double-brackets'
+      ) {
         break;
       }
 
@@ -289,6 +299,7 @@ export class Parser {
     opts: ParseFragmentOpts
   ): (TextNode | CommentNode | TagNode | FormatNode)[] {
     const startTok = this._t.next() as FormatToken;
+    const start = this.getPos(startTok);
     let contents: (TextNode | CommentNode | TagNode)[] = [];
 
     if (format === 'underscore') {
@@ -300,7 +311,6 @@ export class Parser {
     }
 
     const nextTok = this._t.peek();
-    const start = this.getPos(startTok);
 
     // fragment ended but we don't have a close format. Convert this node into a text node.
     if (nextTok.name !== format) {
