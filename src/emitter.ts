@@ -130,7 +130,7 @@ export class Emitter {
   }
 
   emitFieldOrSlot(node: DoubleBracketsNode) {
-    this.str += `<var class="field">${node.contents}</var>`;
+    this.str += `<var class="field">[[${node.contents}]]</var>`;
   }
 
   emitTag(tag: OpaqueTagNode | CommentNode | TagNode) {

@@ -316,7 +316,7 @@ export class Tokenizer {
             const fieldOrSlot = this.tryScanFieldOrSlot();
             if (fieldOrSlot) {
               this.pos += fieldOrSlot.length;
-              this.enqueue({ name: 'double-brackets', contents: fieldOrSlot }, start);
+              this.enqueue({ name: 'double-brackets', contents: fieldOrSlot.slice(2, -2) }, start);
               return;
             }
 
