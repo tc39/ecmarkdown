@@ -3,7 +3,7 @@ import type { Unlocated, Token, AttrToken, Position } from './node-types';
 const fieldOrSlotRegexp = /^\[\[[a-zA-Z0-9_]+\]\]/;
 const tagRegexp = /^<[/!]?(\w[\w-]*)(\s+\w[\w-]*(\s*=\s*("[^"]*"|'[^']*'|[^><"'=`]+))?)*\s*>/;
 const commentRegexp = /^<!--[\w\W]*?-->/;
-const attrRegexp = /^\[ *[\w-]+ *= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*" *(?:, *[\w-]+ *= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*" *)*] /;
+const attrRegexp = /^\[ *[\w-]+ *(?:= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*")? *(?:, *[\w-]+ *(?:= *"(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*")? *)*] /;
 const digitRegexp = /\d/;
 
 const opaqueTags = new Set(['emu-grammar', 'emu-production', 'pre', 'code', 'script', 'style']);
@@ -158,13 +158,17 @@ export class Tokenizer {
 
   // attribute tokens are only valid immediately after list tokens, so we let this be called by the parser.
   tryScanListItemAttributes() {
-    const match = this.str.slice(this.pos).match(attrRegexp);
+    const rest = this.str.slice(this.pos);
+    const match = rest.match(attrRegexp);
     if (!match) {
+      if (rest.startsWith('[')) {
+        this.raise('could not parse attributes for step', this.getLocation());
+      }
       return [];
     }
 
     const parts = match[0].matchAll(
-      /([\w-]+) *= *("(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*")/g
+      /([\w-]+) *(?:= *("(?:[^"\\\x00-\x1F]|\\["\\/bfnrt]|\\u[a-fA-F]{4})*"))?/g
     );
     const tokens = [];
     let offset = 0;
@@ -178,7 +182,7 @@ export class Tokenizer {
       const tok: Unlocated<AttrToken> = {
         name: 'attr',
         key,
-        value: JSON.parse(value),
+        value: value == null ? '' : JSON.parse(value), // the parse is guaranteed to succeed because the regex is quite restricted
       };
       this.pos += part.length;
       this.locate(tok, tokStart);
