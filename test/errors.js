@@ -68,4 +68,13 @@ ${M}      * b
       'Unexpected token parabreak; expected EOF'
     );
   });
+
+  it('bad step attributes', function () {
+    assertAlgError(
+      positioned`
+      1. ${M}[x y]
+    `,
+      'could not parse attributes for step'
+    );
+  });
 });

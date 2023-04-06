@@ -4,14 +4,16 @@ const { parseAlgorithm, parseFragment } = require('../');
 
 describe('Parser', function () {
   it('tracks positions in algorithms', function () {
-    const baseSource = '  1. [id="thing"] a\n  2. b c\n    <figure>text</figure>';
+    const baseSource = '  1. [id="thing", other] a\n  2. b c\n    <figure>text</figure>';
     const assertNodeLocation = makeAssertLocation(baseSource);
     const algorithm = parseAlgorithm(baseSource);
     assertNodeLocation(algorithm, baseSource);
     const list = algorithm.contents;
-    assertNodeLocation(list, '  1. [id="thing"] a\n  2. b c\n    <figure>text</figure>');
+    assertNodeLocation(list, '  1. [id="thing", other] a\n  2. b c\n    <figure>text</figure>');
     const item0 = list.contents[0];
-    assertNodeLocation(item0, '  1. [id="thing"] a\n');
+    assertNodeLocation(item0, '  1. [id="thing", other] a\n');
+    assertNodeLocation(item0.attrs[0], 'id="thing"');
+    assertNodeLocation(item0.attrs[1], 'other');
     assertNodeLocation(item0.contents[0], 'a');
     const item1 = list.contents[1];
     assertNodeLocation(item1, '  2. b c\n    <figure>text</figure>');

@@ -2,6 +2,7 @@
 1. Item
 1. Item
   1. [attr="bar"] Item
+  1. [no-value, with-empty="", with-value="val"] Item
   1. Item
 1. Item
   * Unordered item
