@@ -185,10 +185,10 @@ function unaryMemoize<K, V>(fn: (arg: K) => V, prepopulate: K[] = []) {
   const cache = new Map(prepopulate.map(arg => [arg, fn(arg)]));
   return (arg: K) => {
     let value = cache.get(arg);
-    if (!value) {
+    if (value === undefined && !cache.has(arg)) {
       value = fn(arg);
       cache.set(arg, value);
     }
-    return value;
+    return value as V;
   };
 }
