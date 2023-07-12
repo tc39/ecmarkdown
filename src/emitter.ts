@@ -17,11 +17,18 @@ import type {
   CommentNode,
 } from './node-types';
 
+const getIndentMatcher = unaryMemoize(
+  (length: number) => new RegExp(String.raw`\n[\p{Space_Separator}\t]{1,${length}}`, 'gu'),
+  Array.from({ length: 20 }, (_, i) => i + 1)
+);
+
 export class Emitter {
   str: string;
+  indent: number;
 
   constructor() {
     this.str = '';
+    this.indent = 0;
   }
 
   emit(node: Node | Node[]) {
@@ -110,7 +117,10 @@ export class Emitter {
   emitListItem(li: OrderedListItemNode | UnorderedListItemNode) {
     const attrs = li.attrs.map(a => ` ${a.key}=${JSON.stringify(a.value)}`).join('');
     this.str += `<li${attrs}>`;
+    const oldIndent = this.indent;
+    this.indent = li.contentsIndent;
     this.emitFragment(li.contents);
+    this.indent = oldIndent;
     if (li.sublist !== null) {
       if (li.sublist.name === 'ol') {
         this.emitOrderedList(li.sublist);
@@ -138,7 +148,12 @@ export class Emitter {
   }
 
   emitText(text: TextNode) {
-    this.str += text.contents;
+    let contents = text.contents;
+    if (this.indent) {
+      const indentMatcher = getIndentMatcher(this.indent);
+      contents = contents.replace(indentMatcher, '\n');
+    }
+    this.str += contents;
   }
 
   emitTick(node: TickNode) {
@@ -172,4 +187,16 @@ export class Emitter {
     this.emitFragment(fragment);
     this.str += `</${tagName}>`;
   }
+}
+
+function unaryMemoize<K, V>(fn: (arg: K) => V, prepopulate: K[] = []) {
+  const cache = new Map(prepopulate.map(arg => [arg, fn(arg)]));
+  return (arg: K) => {
+    let value = cache.get(arg);
+    if (value === undefined && !cache.has(arg)) {
+      value = fn(arg);
+      cache.set(arg, value);
+    }
+    return value as V;
+  };
 }

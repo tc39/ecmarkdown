@@ -22,7 +22,7 @@ describe('baselines', () => {
         ? ecmarkdown.fragment
         : ecmarkdown.algorithm;
       let rawOutput = processor(input);
-      let output = beautify(rawOutput);
+      let output = file.endsWith('.raw.ecmarkdown') ? rawOutput + '\n' : beautify(rawOutput);
       let existing = fs.existsSync(snapshotFile) ? fs.readFileSync(snapshotFile, 'utf8') : null;
       if (shouldUpdate) {
         if (existing !== output) {

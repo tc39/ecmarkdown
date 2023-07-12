@@ -80,12 +80,15 @@ export class Parser {
     const startTok = this._t.peek() as OrderedListToken | UnorderedListToken;
 
     let node: Unlocated<ListNode>;
+    let contentsIndent: number;
     if (startTok.name === 'ul') {
       const match = startTok.contents.match(/(\s*)\* /);
       node = { name: 'ul', indent: match![1].length, contents: [] };
+      contentsIndent = match![0].length;
     } else {
       const match = startTok.contents.match(/(\s*)([^.]+)\. /);
       node = { name: 'ol', indent: match![1].length, start: Number(match![2]), contents: [] };
+      contentsIndent = match![0].length;
     }
 
     while (true) {
@@ -102,15 +105,19 @@ export class Parser {
       }
 
       // @ts-ignore typescript is not smart enough to figure out that the types line up
-      node.contents.push(this.parseListItem(node.name, node.indent));
+      node.contents.push(this.parseListItem(node.name, node.indent, contentsIndent));
     }
 
     return this.finish(node);
   }
 
-  parseListItem(kind: 'ol', indent: number): OrderedListItemNode;
-  parseListItem(kind: 'ul', indent: number): UnorderedListItemNode;
-  parseListItem(kind: 'ol' | 'ul', indent: number): OrderedListItemNode | UnorderedListItemNode {
+  parseListItem(kind: 'ol', indent: number, contentsIndent: number): OrderedListItemNode;
+  parseListItem(kind: 'ul', indent: number, contentsIndent: number): UnorderedListItemNode;
+  parseListItem(
+    kind: 'ol' | 'ul',
+    indent: number,
+    contentsIndent: number
+  ): OrderedListItemNode | UnorderedListItemNode {
     this.pushPos();
     // consume list token
     this._t.next();
@@ -133,7 +140,7 @@ export class Parser {
 
     let name: 'ordered-list-item' | 'unordered-list-item' =
       kind === 'ol' ? 'ordered-list-item' : 'unordered-list-item';
-    return this.finish({ name, contents, sublist, attrs });
+    return this.finish({ name, contents, contentsIndent, sublist, attrs });
   }
 
   parseFragment(opts: ParseFragmentOpts): FragmentNode[];
